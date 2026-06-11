@@ -543,6 +543,7 @@ let gdata=retrieve("sm-g",{xp:0,completed:0,achievements:[]});
 let editingProjId=null,projFilter="all",calYear=2026,calMonth=new Date().getMonth();
 function persist(){
   store("sm-p",projects);store("sm-t",todos);store("sm-h",hourEntries);store("sm-g",gdata);
+  window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
   showSaved();
   if(window.driveSync&&!window._skipDriveSync)window.driveSync.triggerSave();
 }
