@@ -423,7 +423,10 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <button class="px-btn muted" onclick="closeModal('project')">CANCEL</button>
       <button class="px-btn" onclick="saveProjectModal()">SAVE</button>
     </div>
-    <div id="pj-delete-wrap" style="display:none;margin-top:10px;">
+    <div id="pj-finish-wrap" style="display:none;margin-top:10px;">
+      <button class="px-btn cyan" style="width:100%;justify-content:center;" onclick="finishProject(editingProjId)">[ MARK AS FINISHED ]</button>
+    </div>
+    <div id="pj-delete-wrap" style="display:none;margin-top:6px;">
       <button class="px-btn red" style="width:100%;justify-content:center;" onclick="deleteProject(editingProjId)">[ DELETE PROJECT ]</button>
     </div>
   </div>
@@ -434,8 +437,11 @@ select option{background:var(--bg1);}textarea{resize:none;}
   <div class="modal">
     <div class="modal-title">> PLAYER PROFILE</div>
     <div style="text-align:center;margin-bottom:18px;">
-      <div id="profile-avatar" style="width:64px;height:64px;margin:0 auto 10px;background:var(--bg2);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;" onclick="cycleAvatar()">&#9760;</div>
-      <div style="font-family:var(--font-head);font-size:6px;color:var(--text3);">TAP TO CHANGE AVATAR</div>
+      <div id="profile-avatar" style="width:120px;height:120px;margin:0 auto 8px;background:var(--bg2);border:2px solid var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:52px;cursor:pointer;overflow:hidden;" onclick="cycleAvatar()">&#9760;</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:6px;">
+        <div style="font-family:var(--font-head);font-size:6px;color:var(--text3);line-height:24px;">TAP TO CHANGE</div>
+        <label style="cursor:pointer;"><input type="file" id="avatar-photo-input" accept="image/*" style="display:none;" onchange="loadAvatarPhoto(event)"/><span class="px-btn sm" style="font-size:7px;padding:4px 8px;">IMPORT PHOTO</span></label>
+      </div>
     </div>
     <div style="margin-bottom:10px;"><label class="form-label">PLAYER NAME</label><input type="text" id="profile-name" placeholder="ENTER YOUR NAME..." maxlength="16"/></div>
     <div style="margin-bottom:10px;">
@@ -476,13 +482,13 @@ select option{background:var(--bg1);}textarea{resize:none;}
 <div class="save-status" id="save-status">SAVED &#9632;</div>
 
 <script>
-const SLT={produccion:"IN PROGRESS",gestion:"ON HOLD",critico:"URGENT",listo:"READY",aplazado:"PARKED"};
-const SB={produccion:"b-green",gestion:"b-amber",critico:"b-red",listo:"b-cyan",aplazado:"b-gray"};
+const SLT={produccion:"IN PROGRESS",gestion:"ON HOLD",critico:"URGENT",listo:"READY",aplazado:"PARKED",finalizado:"DONE"};
+const SB={produccion:"b-green",gestion:"b-amber",critico:"b-red",listo:"b-cyan",aplazado:"b-gray",finalizado:"b-gray"};
 const PO={critico:0,produccion:1,listo:2,gestion:3,aplazado:4};
 const UO={alta:0,media:1,baja:2};
 const MN=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
 const DN=["L","M","X","J","V","S","D"];
-const XP_LEVELS=[0,150,350,650,1100,1800,2800,4200,6000,8500,12000];
+const XP_LEVELS=[0,300,800,1800,3500,6000,10000,16000,25000,40000,60000];
 const RANKS=[
   {min:0,name:"DECK HAND",color:"#7060a8",glow:"rgba(112,96,168,.4)"},
   {min:100,name:"SAILOR",color:"#9d4eff",glow:"rgba(157,78,255,.4)"},
@@ -581,13 +587,13 @@ function checkAchievements(){
 }
 function calcHealth(){
   let score=100;const factors=[];const now=new Date();
-  const crits=projects.filter(p=>p.status==="critico");
+  const crits=projects.filter(p=>p.status==="critico"&&p.status!=="finalizado");
   const critPenalty=crits.length*12;score-=Math.min(critPenalty,40);
   factors.push({label:"CRITICAL PROJECTS",val:crits.length,penalty:Math.min(critPenalty,40),good:crits.length===0,desc:crits.length===0?"No critical projects":crits.length+" projects need immediate attention"});
-  const expired=projects.filter(p=>{if(!p.deadline||p.status==="aplazado")return false;return new Date(p.deadline)<now;});
+  const expired=projects.filter(p=>{if(!p.deadline||p.status==="aplazado"||p.status==="listo"||p.status==="finalizado")return false;return new Date(p.deadline)<now;});
   const expPenalty=expired.length*15;score-=Math.min(expPenalty,30);
   factors.push({label:"EXPIRED DEADLINES",val:expired.length,penalty:Math.min(expPenalty,30),good:expired.length===0,desc:expired.length===0?"All deadlines on track":expired.length+" deadlines past due"});
-  const inactive=projects.filter(p=>{if(p.status==="aplazado"||p.status==="listo")return false;return !p.history||p.history.length===0;});
+  const inactive=projects.filter(p=>{if(p.status==="aplazado"||p.status==="listo"||p.status==="finalizado")return false;return !p.history||p.history.length===0;});
   const inactPenalty=Math.min(inactive.length*3,20);score-=inactPenalty;
   factors.push({label:"PROJECTS WITHOUT LOGS",val:inactive.length,penalty:inactPenalty,good:inactive.length<5,desc:inactive.length<5?"Good log coverage":inactive.length+" active projects have no notes"});
   const doneRatio=projects.length>0?Math.round((gdata.completed||0)/Math.max(projects.length,1)*100):0;
@@ -674,14 +680,14 @@ function renderDaily(){
   if(!html)html=`<div style="font-size:14px;color:var(--text3);padding:6px 0 12px;">> NO CRITICAL ALERTS</div>`;
   al.innerHTML=html;renderTodos();
 }
-function addTodo(){const inp=document.getElementById("todo-input");const t=inp.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,done:false});inp.value="";addXP(10,"TASK ADDED");persist();renderTodos();}
+function addTodo(){const inp=document.getElementById("todo-input");const t=inp.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,done:false});inp.value="";addXP(2,"TASK ADDED");persist();renderTodos();}
 function renderTodos(){
   const list=document.getElementById("todo-list"),empty=document.getElementById("todo-empty"),count=document.getElementById("todo-count");
   const p=todos.filter(t=>!t.done).length;count.textContent=p?pad(p)+" PENDING":"";
   if(!todos.length){empty.style.display="block";list.innerHTML="";return;}empty.style.display="none";
   list.innerHTML=todos.map((t,i)=>`<div class="todo-item"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTodo(${i})"/><span style="flex:1;" class="${t.done?"todo-done":""}">${t.text}</span><button onclick="deleteTodo(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 6px;">X</button></div>`).join("");
 }
-function toggleTodo(i){const was=todos[i].done;todos[i].done=!todos[i].done;if(!was){gdata.completed=(gdata.completed||0)+1;addXP(50,"TASK COMPLETE!");}persist();renderTodos();checkAchievements();}
+function toggleTodo(i){const was=todos[i].done;todos[i].done=!todos[i].done;if(!was){gdata.completed=(gdata.completed||0)+1;addXP(20,"TASK COMPLETE!");}persist();renderTodos();checkAchievements();}
 function deleteTodo(i){todos.splice(i,1);persist();renderTodos();}
 function clearDone(){todos=todos.filter(t=>!t.done);persist();renderTodos();}
 function filterProj(f,el){projFilter=f;document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");renderProjects(f);}
@@ -693,6 +699,8 @@ function renderProjects(filter){
   if(filter==="all"&&!q.trim()){
     const groups=[{key:"critico",label:"URGENT"},{key:"produccion",label:"IN PROGRESS"},{key:"listo",label:"READY TO SHIP"},{key:"gestion",label:"ON HOLD"},{key:"aplazado",label:"PARKED"}];
     let html="";groups.forEach(g=>{const items=filtered.filter(p=>p.status===g.key);if(!items.length)return;html+=`<div class="section-label">${g.label} [${pad(items.length)}]</div>`;items.forEach(p=>{html+=projCard(p);});});
+    const done=projects.filter(p=>p.status==="finalizado");
+    if(done.length){html+=`<div class="section-label" style="color:var(--text3);">FINISHED [${pad(done.length)}]</div>`;done.forEach(p=>{html+=projCard(p);});}
     list.innerHTML=html||`<div style="font-size:14px;color:var(--text3);text-align:center;padding:20px;">> NO PROJECTS FOUND</div>`;
   } else {list.innerHTML=filtered.map(p=>projCard(p)).join("")||`<div style="font-size:14px;color:var(--text3);text-align:center;padding:20px;">> NO RESULTS</div>`;}
 }
@@ -706,7 +714,7 @@ function addNewProject(){
   editingProjId=null;document.getElementById("proj-modal-title").textContent="> NEW PROJECT";
   ["pj-name","pj-next","pj-owner","pj-deadline","pj-notes"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("pj-status").value="gestion";document.getElementById("pj-urgency").value="media";
-  ["pj-delete-wrap","pipeline-wrap","notes-history-wrap","share-wrap","verdict-wrap"].forEach(id=>document.getElementById(id).style.display="none");
+  ["pj-delete-wrap","pj-finish-wrap","pipeline-wrap","notes-history-wrap","share-wrap","verdict-wrap"].forEach(id=>document.getElementById(id).style.display="none");
   document.getElementById("share-box").style.display="none";openModal("project");
 }
 function editProject(id){
@@ -714,6 +722,7 @@ function editProject(id){
   document.getElementById("proj-modal-title").textContent="> EDIT: "+p.name.substring(0,20);
   document.getElementById("pj-name").value=p.name;document.getElementById("pj-status").value=p.status;document.getElementById("pj-urgency").value=p.urgency;document.getElementById("pj-deadline").value=p.deadline||"";document.getElementById("pj-owner").value=p.owner||"";document.getElementById("pj-next").value=p.next||"";document.getElementById("pj-notes").value=p.notes||"";
   ["pj-delete-wrap","pipeline-wrap","notes-history-wrap","share-wrap","verdict-wrap"].forEach(id=>document.getElementById(id).style.display="block");
+  document.getElementById("pj-finish-wrap").style.display=p.status==="finalizado"?"none":"block";
   document.getElementById("share-box").style.display="none";renderPipeline(p);renderNotesHistory(p);generateVerdict(p);openModal("project");
 }
 function renderNotesHistory(p){
@@ -724,7 +733,7 @@ function addNote(){
   const inp=document.getElementById("new-note-input");const t=inp.value.trim();if(!t||!editingProjId)return;
   const p=projects.find(x=>x.id===editingProjId);if(!p)return;if(!p.history)p.history=[];
   const now=new Date();p.history.push({id:Date.now(),text:t,date:now.toLocaleDateString("es-ES")+" "+now.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})});
-  inp.value="";addXP(15,"LOG ENTRY ADDED");persist();renderNotesHistory(p);checkAchievements();
+  inp.value="";addXP(5,"LOG ENTRY ADDED");persist();renderNotesHistory(p);checkAchievements();
 }
 function generateVerdict(p){
   const el=document.getElementById("verdict-text"),fin=document.getElementById("verdict-final");
@@ -734,6 +743,7 @@ function generateVerdict(p){
   else if(p.status==="produccion"){lines.push("Project is active in production.");if(notes===0)lines.push("No log entries. Consider documenting progress.");else lines.push("Last activity: "+last.date+".");if(d!==null&&d<=7)lines.push("Deadline approaching: "+d+" days.");verdict="MAINTAIN MOMENTUM";}
   else if(p.status==="gestion"){lines.push("Project queued. Waiting for external action.");lines.push(p.owner?"Owner: "+p.owner+". Follow up.":"No owner assigned.");verdict="FOLLOW UP REQUIRED";}
   else if(p.status==="listo"){lines.push("Work complete. Ready for delivery.");verdict="SHIP IT";}
+  else if(p.status==="finalizado"){lines.push("Project finished and archived.");verdict="MISSION ACCOMPLISHED";}
   else{lines.push("Project on hold.");verdict="AWAITING REACTIVATION";}
   let i=0;const full=lines.join(" ");el.textContent="";fin.textContent="";
   const tw=setInterval(()=>{if(i<full.length){el.textContent+=full[i];i++;}else{clearInterval(tw);fin.textContent="> VERDICT: "+verdict;}},14);
@@ -752,11 +762,19 @@ function copyShareText(){navigator.clipboard.writeText(document.getElementById("
 function saveProjectModal(){
   const name=document.getElementById("pj-name").value.trim();if(!name){alert("NAME REQUIRED");return;}
   const data={name,status:document.getElementById("pj-status").value,urgency:document.getElementById("pj-urgency").value,deadline:document.getElementById("pj-deadline").value,owner:document.getElementById("pj-owner").value,next:document.getElementById("pj-next").value,notes:document.getElementById("pj-notes").value};
-  if(editingProjId){const was=projects.find(p=>p.id===editingProjId)?.status;projects=projects.map(p=>p.id===editingProjId?{...p,...data}:p);if(data.status==="listo"&&was!=="listo"){gdata.completed=(gdata.completed||0)+1;addXP(50,"PROJECT COMPLETED!");}else addXP(10,"PROJECT UPDATED");}
-  else{projects.unshift({id:Date.now(),...data,history:[]});addXP(20,"NEW PROJECT CREATED");}
+  if(editingProjId){const was=projects.find(p=>p.id===editingProjId)?.status;projects=projects.map(p=>p.id===editingProjId?{...p,...data}:p);if(data.status==="listo"&&was!=="listo"){gdata.completed=(gdata.completed||0)+1;addXP(30,"PROJECT READY!");}else addXP(3,"PROJECT UPDATED");}
+  else{projects.unshift({id:Date.now(),...data,history:[]});addXP(10,"NEW PROJECT CREATED");}
   persist();closeModal("project");renderProjects(projFilter);editingProjId=null;checkAchievements();
 }
 function deleteProject(id){if(!confirm("DELETE PROJECT?"))return;projects=projects.filter(p=>p.id!==id);persist();closeModal("project");renderProjects(projFilter);editingProjId=null;}
+function finishProject(id){
+  if(!confirm("MARK PROJECT AS FINISHED? This will archive it and award XP."))return;
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  const was=p.status;
+  projects=projects.map(x=>x.id===id?{...x,status:"finalizado",finishedAt:new Date().toISOString()}:x);
+  if(was!=="finalizado"){gdata.completed=(gdata.completed||0)+1;addXP(100,"PROJECT FINISHED!");}
+  persist();closeModal("project");renderProjects(projFilter);editingProjId=null;checkAchievements();
+}
 function updateBillOpts(){}
 const CE=[{date:"2026-06-10",label:"Lucky Priv.",type:"ce-crit"},{date:"2026-06-30",label:"Garcia 70",type:"ce-crit"},{date:"2026-07-01",label:"Delta House",type:"ce-crit"},{date:"2026-07-24",label:"Brenta A2",type:"ce-pipe"},{date:"2026-09-07",label:"Alpha C.",type:"ce-prod"},{date:"2026-05-26",label:"Oceanis",type:"ce-prod"}];
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();}
@@ -802,25 +820,35 @@ function runBoot(){
   function showLoginButtons(){document.getElementById("boot-login-btns").style.display="flex";}
   typeTitle();
 }
-var AVATARS=["&#9760;","&#9876;","&#9878;","&#9881;","&#9992;","&#9822;","&#9733;","&#9728;","&#9874;","&#128081;"];var avatarIdx=0;
+var AVATARS=["&#9760;","&#9876;","&#9878;","&#9881;","&#9992;","&#9822;","&#9733;","&#9728;","&#9874;","&#128081;"];var avatarIdx=0;var customAvatarData=null;
+function loadAvatarPhoto(event){
+  var file=event.target.files[0];if(!file)return;
+  var reader=new FileReader();reader.onload=function(e){
+    customAvatarData=e.target.result;
+    var el=document.getElementById("profile-avatar");
+    el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';
+  };reader.readAsDataURL(file);
+}
 function openProfile(){
-  var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#9d4eff",dark:"#5a1fa8",crt:true});avatarIdx=prof.avatar||0;
-  document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];document.getElementById("profile-name").value=prof.name||"";
+  var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#9d4eff",dark:"#5a1fa8",crt:true});avatarIdx=prof.avatar||0;customAvatarData=prof.customAvatar||null;
+  var el=document.getElementById("profile-avatar");
+  if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';}else{el.innerHTML=AVATARS[avatarIdx];}
+  document.getElementById("profile-name").value=prof.name||"";
   document.getElementById("prof-xp").textContent=String(gdata.xp||0);document.getElementById("prof-lvl").textContent=String(getLvl(gdata.xp||0)).padStart(2,"0");document.getElementById("prof-rank").textContent=getRank(gdata.xp||0).name;document.getElementById("prof-done").textContent=String(gdata.completed||0);
   document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#9d4eff"));s.style.borderColor=s.dataset.color===(prof.theme||"#9d4eff")?"white":"transparent";});
   var crtOn=prof.crt!==false;document.getElementById("crt-on").className="px-btn sm"+(crtOn?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(crtOn?" muted":"");
   openModal("profile");
 }
-function cycleAvatar(){avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
+function cycleAvatar(){customAvatarData=null;avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
 function setTheme(color,dark,el){document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.remove("active");s.style.borderColor="transparent";});el.classList.add("active");el.style.borderColor="white";applyTheme(color,dark);}
 function applyTheme(color,dark){var root=document.documentElement;root.style.setProperty("--accent",color);root.style.setProperty("--accent-dark",dark);root.style.setProperty("--accent-glow","rgba("+hexToRgb(color)+",.18)");}
 function hexToRgb(hex){return parseInt(hex.slice(1,3),16)+","+parseInt(hex.slice(3,5),16)+","+parseInt(hex.slice(5,7),16);}
 function setCRT(on){document.getElementById("crt-on").className="px-btn sm"+(on?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(on?" muted":"");if(on)document.body.classList.remove("no-crt");else document.body.classList.add("no-crt");}
 function saveProfile(){
   var name=document.getElementById("profile-name").value.trim()||"PLAYER";var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
-  var prof={name:name.toUpperCase(),avatar:avatarIdx,theme,dark,crt};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
+  var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
 }
-function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";document.getElementById("header-avatar").innerHTML=AVATARS[prof.avatar||0];if(prof.theme)applyTheme(prof.theme,prof.dark||"#5a1fa8");setCRT(prof.crt!==false);}
+function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#5a1fa8");setCRT(prof.crt!==false);}
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
