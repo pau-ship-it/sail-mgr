@@ -854,6 +854,13 @@ function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
 window.persist=persist;window.renderDaily=renderDaily;window.updateXPBar=updateXPBar;window.checkAchievements=checkAchievements;window.applyProfile=applyProfile;
+window.applyData=function(data){
+  if(Array.isArray(data.projects))projects=data.projects.map(p=>({...p,history:p.history||[]}));
+  if(Array.isArray(data.todos))todos=data.todos;
+  if(Array.isArray(data.hourEntries))hourEntries=data.hourEntries;
+  if(data.gdata)gdata=data.gdata;
+  window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
+};
 // INIT
 const now=new Date();if(now.getHours()>=14&&now.getMinutes()>=45)document.getElementById("hours-dot").style.display="block";
 loadProfile();runBoot();updateXPBar();checkAchievements();renderDaily();
