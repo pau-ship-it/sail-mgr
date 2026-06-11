@@ -26,10 +26,10 @@ function setSyncStatus(state) {
   const label = indicator.querySelector('.sync-label');
   indicator.className = 'sync-indicator sync-' + state;
   const map = {
-    idle:    { i: '◈', l: 'OFFLINE',  c: 'sync-idle'    },
-    syncing: { i: '⟳', l: 'SYNCING…', c: 'sync-syncing' },
-    synced:  { i: '✓', l: 'SYNCED',   c: 'sync-synced'  },
-    error:   { i: '✗', l: 'ERROR',    c: 'sync-error'   },
+    idle:    { i: '◈', l: 'OFFLINE'  },
+    syncing: { i: '⟳', l: 'SYNCING…' },
+    synced:  { i: '✓', l: 'SYNCED'   },
+    error:   { i: '✗', l: 'ERROR'    },
   };
   const s = map[state] || map.idle;
   if (icon)  icon.textContent  = s.i;
@@ -45,7 +45,6 @@ function setUserBadge(profile) {
     badge.classList.remove('hidden');
     if (avatar) avatar.src = profile.picture || '';
     if (name)   name.textContent = (profile.given_name || profile.name || '').toUpperCase();
-    // Also show logout button in profile tab
     const logoutBtn = document.getElementById('btn-logout');
     if (logoutBtn) logoutBtn.classList.remove('hidden');
   } else {
@@ -89,7 +88,7 @@ async function driveRequest(method, url, body, isJson = true) {
   const headers = { Authorization: 'Bearer ' + accessToken };
   if (isJson && body) headers['Content-Type'] = 'application/json';
   const res = await fetch(url, { method, headers, body: body ? (isJson ? JSON.stringify(body) : body) : undefined });
-  if (res.status === 401) { clearToken(); throw new Error('AUTH_EXPIRED'); }
+  if (res.status === 401) { throw new Error('AUTH_EXPIRED'); }
   if (!res.ok) throw new Error('Drive error ' + res.status);
   return res.status === 204 ? null : res.json();
 }
@@ -137,8 +136,21 @@ async function updateFile(id, content) {
     },
     body: JSON.stringify(content),
   });
-  if (res.status === 401) { clearToken(); throw new Error('AUTH_EXPIRED'); }
+  if (res.status === 401) { throw new Error('AUTH_EXPIRED'); }
   if (!res.ok) throw new Error('Update failed ' + res.status);
+}
+
+// ── Build payload from app state ───────────────────────────────────────────
+
+function buildPayload() {
+  const p = window.projects || [];
+  const t = window.todos || [];
+  const h = window.hourEntries || [];
+  const g = window.gdata || {};
+  const prof = (() => {
+    try { return JSON.parse(localStorage.getItem('sm-profile') || 'null'); } catch (_) { return null; }
+  })();
+  return { v: 2, date: new Date().toISOString(), projects: p, todos: t, hourEntries: h, gdata: g, profile: prof };
 }
 
 // ── Load data from Drive ───────────────────────────────────────────────────
@@ -148,60 +160,38 @@ async function loadFromDrive() {
   try {
     const file = await findFile();
     if (!file) {
-      // First time — write current local data to Drive
-      const localData = buildPayload();
-      const created = await createFile(localData);
+      // First time — create Drive file with current local data
+      const created = await createFile(buildPayload());
       fileId = created.id;
       setSyncStatus('synced');
-      return null; // keep local data
+      return null;
     }
     fileId = file.id;
     const data = await readFile(fileId);
     setSyncStatus('synced');
 
-    // Compare timestamps: whichever is newer wins
+    // Compare timestamps — keep whichever is newer
     const localDateStr = (() => { try { return localStorage.getItem('sm-date'); } catch(_) { return null; } })();
-    const localDate  = localDateStr ? new Date(localDateStr) : new Date(0);
-    const driveDate  = (data && data.date) ? new Date(data.date) : new Date(0);
-
+    const localDate = localDateStr ? new Date(localDateStr) : new Date(0);
+    const driveDate = (data && data.date) ? new Date(data.date) : new Date(0);
     console.log('[DriveSync] local:', localDateStr, '| drive:', data && data.date);
 
     if (localDate > driveDate) {
-      // Local data is newer → push it to Drive and keep it
       console.log('[DriveSync] Local is newer → pushing to Drive');
       await updateFile(fileId, buildPayload());
-      return null;
+      return null; // keep local data
     }
 
     return data; // Drive is newer → apply it
   } catch (err) {
     console.error('[DriveSync] loadFromDrive error:', err);
     setSyncStatus('error');
+    if (err.message === 'AUTH_EXPIRED') refreshToken();
     return null;
   }
 }
 
 // ── Save data to Drive (debounced) ─────────────────────────────────────────
-
-function buildPayload() {
-  // Pull current state from the app globals
-  const p = window.projects || [];
-  const t = window.todos || [];
-  const h = window.hourEntries || [];
-  const g = window.gdata || {};
-  const prof = (() => {
-    try { return JSON.parse(localStorage.getItem('sm-profile') || 'null'); } catch (_) { return null; }
-  })();
-  return {
-    v: 2,
-    date: new Date().toISOString(),
-    projects: p,
-    todos: t,
-    hourEntries: h,
-    gdata: g,
-    profile: prof,
-  };
-}
 
 async function doSave() {
   if (!isLoggedIn || !accessToken) return;
@@ -239,19 +229,50 @@ function scheduleSave() {
 
 function refreshToken() {
   if (!tokenClient) return;
-  tokenClient.requestAccessToken({ prompt: '' }); // silent refresh
+  console.log('[DriveSync] Refreshing token silently…');
+  tokenClient.requestAccessToken({ prompt: '' });
 }
 
-// ── Fetch user info ────────────────────────────────────────────────────────
+// ── Apply Drive data to app ────────────────────────────────────────────────
 
-async function fetchUserInfo(token) {
+function applyDriveData(data) {
+  if (!data) return;
   try {
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: 'Bearer ' + token }
-    });
-    if (!res.ok) return null;
-    return res.json();
-  } catch (_) { return null; }
+    // window.applyData() updates the LOCAL variables inside index.html
+    if (typeof window.applyData === 'function') {
+      window.applyData(data);
+    } else {
+      if (Array.isArray(data.projects)) window.projects = data.projects.map(p => ({ ...p, history: p.history || [] }));
+      if (Array.isArray(data.todos))    window.todos = data.todos;
+      if (Array.isArray(data.hourEntries)) window.hourEntries = data.hourEntries;
+      if (data.gdata) window.gdata = data.gdata;
+    }
+    if (data.profile) {
+      try { localStorage.setItem('sm-profile', JSON.stringify(data.profile)); } catch (_) {}
+      if (typeof window.applyProfile === 'function') window.applyProfile(data.profile);
+    }
+    if (typeof window.persist === 'function') {
+      window._skipDriveSync = true;
+      window.persist();
+      window._skipDriveSync = false;
+    }
+    if (typeof window.renderDaily === 'function') window.renderDaily();
+    if (typeof window.updateXPBar === 'function') window.updateXPBar();
+    if (typeof window.checkAchievements === 'function') window.checkAchievements();
+    console.log('[DriveSync] Data loaded from Drive ✓');
+  } catch (err) {
+    console.error('[DriveSync] applyDriveData error:', err);
+  }
+}
+
+// ── Boot screen helpers ────────────────────────────────────────────────────
+
+function hideBoot() {
+  const boot = document.getElementById('boot-screen');
+  if (!boot || boot.style.display === 'none') return;
+  boot.style.transition = 'opacity .4s steps(4)';
+  boot.style.opacity = '0';
+  setTimeout(() => { boot.style.display = 'none'; }, 450);
 }
 
 // ── Init Google Identity Services ─────────────────────────────────────────
@@ -272,101 +293,58 @@ async function initGIS() {
     return;
   }
   await waitForGIS();
+
   tokenClient = window.google.accounts.oauth2.initTokenClient({
     client_id: clientId,
     scope: SCOPE,
     callback: async (tokenResponse) => {
       if (tokenResponse.error) {
         console.error('[DriveSync] Token error:', tokenResponse.error);
-        setSyncStatus('error');
+        // Silent refresh failed — user needs to log in manually
+        if (!isLoggedIn) setSyncStatus('idle');
         return;
       }
       saveToken(tokenResponse.access_token);
       isLoggedIn = true;
-      // Fetch user profile
+      // Fetch user profile (best-effort)
       const profile = await fetchUserInfo(tokenResponse.access_token);
       if (profile) { saveUserProfile(profile); setUserBadge(profile); }
-      // Load Drive data
+      // Load / merge Drive data
       const driveData = await loadFromDrive();
       if (driveData) applyDriveData(driveData);
-      // Hide boot screen if it's still showing
       hideBoot();
     },
   });
-  // Check for saved token & try silent sign-in
-  const savedToken = loadToken();
-  if (savedToken) {
-    accessToken = savedToken;
-    isLoggedIn = true;
+
+  // If previously logged in, request a fresh token silently (no login popup)
+  const wasLoggedIn = !!loadToken();
+  if (wasLoggedIn) {
     const savedProfile = loadUserProfile();
     if (savedProfile) setUserBadge(savedProfile);
-    // Try to load from Drive with saved token
     setSyncStatus('syncing');
-    try {
-      const driveData = await loadFromDrive();
-      if (driveData) applyDriveData(driveData);
-    } catch (_) {
-      // Token expired — clear and show boot
-      clearToken();
-      isLoggedIn = false;
-      setSyncStatus('idle');
-    }
+    // Silent refresh — fires the callback above with a fresh token
+    tokenClient.requestAccessToken({ prompt: '' });
   }
 }
 
-// ── Apply Drive data to app ────────────────────────────────────────────────
+// ── Fetch user info ────────────────────────────────────────────────────────
 
-function applyDriveData(data) {
-  if (!data) return;
+async function fetchUserInfo(token) {
   try {
-    // applyData updates the LOCAL variables inside index.html (not just window.*)
-    if (typeof window.applyData === 'function') {
-      window.applyData(data);
-    } else {
-      if (Array.isArray(data.projects)) window.projects = data.projects.map(p => ({ ...p, history: p.history || [] }));
-      if (Array.isArray(data.todos))    window.todos = data.todos;
-      if (Array.isArray(data.hourEntries)) window.hourEntries = data.hourEntries;
-      if (data.gdata) window.gdata = data.gdata;
-    }
-    if (data.profile) {
-      try { localStorage.setItem('sm-profile', JSON.stringify(data.profile)); } catch (_) {}
-      if (typeof window.applyProfile === 'function') window.applyProfile(data.profile);
-    }
-    // Re-persist to localStorage
-    if (typeof window.persist === 'function') {
-      window._skipDriveSync = true;
-      window.persist();
-      window._skipDriveSync = false;
-    }
-    // Re-render current view
-    if (typeof window.renderDaily === 'function') window.renderDaily();
-    if (typeof window.updateXPBar === 'function') window.updateXPBar();
-    if (typeof window.checkAchievements === 'function') window.checkAchievements();
-    console.log('[DriveSync] Data loaded from Drive ✓');
-  } catch (err) {
-    console.error('[DriveSync] applyDriveData error:', err);
-  }
-}
-
-// ── Boot screen helpers ────────────────────────────────────────────────────
-
-function hideBoot() {
-  const boot = document.getElementById('boot-screen');
-  if (!boot || boot.style.display === 'none') return;
-  boot.style.transition = 'opacity .4s steps(4)';
-  boot.style.opacity = '0';
-  setTimeout(() => { boot.style.display = 'none'; }, 450);
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (_) { return null; }
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
 window.driveSync = {
-  /** Call this from the app's persist() */
   triggerSave() {
     if (isLoggedIn && !window._skipDriveSync) scheduleSave();
   },
-
-  /** Called when user clicks LOGIN WITH GOOGLE */
   login() {
     if (!tokenClient) {
       alert('Google Client ID not configured.\n\nEdit config.js and set your GOOGLE_CLIENT_ID.');
@@ -374,14 +352,10 @@ window.driveSync = {
     }
     tokenClient.requestAccessToken({ prompt: 'consent' });
   },
-
-  /** Called when user clicks CONTINUE OFFLINE */
   continueOffline() {
     hideBoot();
     setSyncStatus('idle');
   },
-
-  /** Called when user clicks LOGOUT */
   logout() {
     if (window.google && window.google.accounts && window.google.accounts.oauth2) {
       window.google.accounts.oauth2.revoke(accessToken, () => {});
@@ -390,22 +364,16 @@ window.driveSync = {
     isLoggedIn = false;
     setUserBadge(null);
     setSyncStatus('idle');
-    // Reload to boot screen
     location.reload();
   },
-
   get isLoggedIn() { return isLoggedIn; },
 };
 
-// ── Offline fallback: sync when connection returns ─────────────────────────
+// ── Offline fallback ───────────────────────────────────────────────────────
 
 window.addEventListener('online', () => {
-  if (isLoggedIn) {
-    setSyncStatus('syncing');
-    doSave();
-  }
+  if (isLoggedIn) { setSyncStatus('syncing'); doSave(); }
 });
-
 window.addEventListener('offline', () => {
   if (isLoggedIn) setSyncStatus('error');
 });
