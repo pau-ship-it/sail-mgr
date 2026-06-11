@@ -148,7 +148,7 @@ async function loadFromDrive() {
   try {
     const file = await findFile();
     if (!file) {
-      // First time — write current data to Drive
+      // First time — write current local data to Drive
       const localData = buildPayload();
       const created = await createFile(localData);
       fileId = created.id;
@@ -158,7 +158,22 @@ async function loadFromDrive() {
     fileId = file.id;
     const data = await readFile(fileId);
     setSyncStatus('synced');
-    return data;
+
+    // Compare timestamps: whichever is newer wins
+    const localDateStr = (() => { try { return localStorage.getItem('sm-date'); } catch(_) { return null; } })();
+    const localDate  = localDateStr ? new Date(localDateStr) : new Date(0);
+    const driveDate  = (data && data.date) ? new Date(data.date) : new Date(0);
+
+    console.log('[DriveSync] local:', localDateStr, '| drive:', data && data.date);
+
+    if (localDate > driveDate) {
+      // Local data is newer → push it to Drive and keep it
+      console.log('[DriveSync] Local is newer → pushing to Drive');
+      await updateFile(fileId, buildPayload());
+      return null;
+    }
+
+    return data; // Drive is newer → apply it
   } catch (err) {
     console.error('[DriveSync] loadFromDrive error:', err);
     setSyncStatus('error');
