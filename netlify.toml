@@ -1,3 +1,5 @@
+[build.processing]
+  skip_processing = true
 [[headers]]
   for = "/*"
   [headers.values]
