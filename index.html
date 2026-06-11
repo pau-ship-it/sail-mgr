@@ -744,20 +744,9 @@ function toggleShare(){
 }
 function generateShareText(p){
   const db=p.deadline?daysLeft(p.deadline):null;const dStr=db!==null?(db<=0?" (EXPIRED)":" ("+db+" days)"):"";
-  let txt="SAIL.MGR STATUS REPORT
-========================
-PROJECT: "+p.name+"
-STATUS: "+SLT[p.status]+" | URG: "+p.urgency.toUpperCase()+"
-";
-  if(p.deadline)txt+="DEADLINE: "+p.deadline+dStr+"
-";if(p.owner)txt+="OWNER: "+p.owner+"
-";txt+="
-NEXT ACTION:
-"+(p.next||"--");
-  if(p.history&&p.history.length){const last=p.history[p.history.length-1];txt+="
-
-LAST LOG ("+last.date+"):
-"+last.text;}return txt;
+  let txt="SAIL.MGR STATUS REPORT\n========================\nPROJECT: "+p.name+"\nSTATUS: "+SLT[p.status]+" | URG: "+p.urgency.toUpperCase()+"\n";
+  if(p.deadline)txt+="DEADLINE: "+p.deadline+dStr+"\n";if(p.owner)txt+="OWNER: "+p.owner+"\n";txt+="\nNEXT ACTION:\n"+(p.next||"--");
+  if(p.history&&p.history.length){const last=p.history[p.history.length-1];txt+="\n\nLAST LOG ("+last.date+"):\n"+last.text;}return txt;
 }
 function copyShareText(){navigator.clipboard.writeText(document.getElementById("share-text").textContent).then(()=>showSaved());}
 function saveProjectModal(){
