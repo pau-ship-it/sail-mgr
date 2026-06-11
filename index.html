@@ -662,7 +662,7 @@ function nav(id,el){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll(".nav-tab").forEach(n=>n.classList.remove("active"));
   document.getElementById("view-"+id).classList.add("active");if(el)el.classList.add("active");
   const t={daily:"DAILY",projects:"PROJECTS",health:"DEPT HEALTH",calendar:"CALENDAR",hours:"STATS & SYNC"};
-  document.getElementById("view-sub").textContent=t[id]||id.toUpperCase();
+  var vs=document.getElementById("view-sub");if(vs)vs.textContent=t[id]||id.toUpperCase();
   if(id!=="health")stopECG();
   if(id==="daily")renderDaily();if(id==="calendar")renderCal();if(id==="projects")renderProjects(projFilter);
   if(id==="health")renderHealth();if(id==="hours"){document.getElementById("hours-dot").style.display="none";renderStats();}
