@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>SAIL.MGR v4.0</title>
+<title>MANAGER ASSIST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="config.js"></script>
 <style>
 :root{
-  --bg0:#08090d;--bg1:#0d0f17;--bg2:#12151f;--border:#1e2235;--border2:#2a3050;
-  --accent:#9d4eff;--accent-dark:#5a1fa8;--accent-glow:rgba(157,78,255,0.18);
-  --accent2:#00ffff;--accent3:#ffff00;--accent4:#ff00ff;
-  --red:#ff2244;--amber:#ff8800;--green:#00e676;
-  --text1:#e8e0ff;--text2:#b8a0ee;--text3:#7060a8;
-  --nav-h:68px;--font-head:'Press Start 2P',monospace;--font-body:'VT323',monospace;
+  --bg0:#0b0c10;--bg1:#13141a;--bg2:#1c1e28;--border:#2a2d3e;--border2:#383c54;
+  --accent:#7c6af7;--accent-dark:#3d2fa8;--accent-glow:rgba(124,106,247,0.15);
+  --accent2:#22d3ee;--accent3:#f0c040;--accent4:#e879f9;
+  --red:#f05060;--amber:#f0903a;--green:#30d480;
+  --text1:#dcdcf0;--text2:#9898c0;--text3:#565680;
+  --nav-h:68px;--font-head:'Press Start 2P',monospace;--font-body:'Share Tech Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflow:hidden;color:var(--text1);}
 .no-crt::before{display:none!important;}.no-crt::after{display:none!important;}
-body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 1px,transparent 1px,transparent 2px);}
-body::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(157,78,255,.018) 0,rgba(157,78,255,.018) 1px,transparent 1px,transparent 8px),repeating-linear-gradient(0deg,rgba(157,78,255,.018) 0,rgba(157,78,255,.018) 1px,transparent 1px,transparent 8px);}
+body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0,rgba(0,0,0,.06) 1px,transparent 1px,transparent 3px);}
+body::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(124,106,247,.012) 0,rgba(124,106,247,.012) 1px,transparent 1px,transparent 8px),repeating-linear-gradient(0deg,rgba(124,106,247,.012) 0,rgba(124,106,247,.012) 1px,transparent 1px,transparent 8px);}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .blink{animation:blink 1s steps(1) infinite;}
 .px-card{position:relative;background:var(--bg1);border:2px solid var(--border2);padding:12px;margin-bottom:10px;cursor:pointer;}
-.px-card::before{content:"";position:absolute;top:-2px;left:-2px;width:8px;height:8px;background:var(--accent);clip-path:polygon(0 0,100% 0,0 100%);}
-.px-card::after{content:"";position:absolute;bottom:-2px;right:-2px;width:8px;height:8px;background:var(--accent);clip-path:polygon(100% 0,100% 100%,0 100%);}
+.px-card::before{content:"";position:absolute;top:-2px;left:-2px;width:10px;height:10px;background:var(--accent);clip-path:polygon(0 0,100% 0,0 100%);}
+.px-card::after{content:"";position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;background:var(--accent);clip-path:polygon(100% 0,100% 100%,0 100%);}
 .px-card.critico::before,.px-card.critico::after{background:var(--red);}
 .px-card.listo::before,.px-card.listo::after{background:var(--accent2);}
 .px-card.gestion::before,.px-card.gestion::after{background:var(--amber);}
@@ -36,8 +36,9 @@ body::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;b
 .xp-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .lvl-badge{font-family:var(--font-head);font-size:8px;color:var(--accent3);border:2px solid var(--accent3);padding:3px 8px;}
 .rank-badge{font-family:var(--font-head);font-size:7px;color:var(--accent);border:2px solid var(--accent);padding:3px 8px;}
-.xp-bar-wrap{height:10px;background:var(--bg2);border:2px solid var(--border2);overflow:hidden;}
+.xp-bar-wrap{height:14px;background:var(--bg2);border:2px solid var(--border2);overflow:hidden;position:relative;}
 .xp-bar{height:100%;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,var(--accent-dark) 6px,var(--accent-dark) 8px);transition:width steps(10,.5s);}
+.xp-bar-pct{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:var(--font-head);font-size:6px;color:rgba(255,255,255,0.55);pointer-events:none;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg1);border-bottom:2px solid var(--border2);flex-shrink:0;}
 .topbar-title{font-family:var(--font-head);font-size:9px;color:var(--accent);}
 .topbar-actions{display:flex;gap:8px;}
@@ -166,20 +167,20 @@ select option{background:var(--bg1);}textarea{resize:none;}
 .sync-error{border-color:var(--red);color:var(--red);}
 /* BOOT LOGIN BUTTONS */
 #boot-login-btns{display:none;flex-direction:column;align-items:center;gap:12px;margin-top:24px;}
-#btn-google-login{font-family:'Press Start 2P',monospace;font-size:8px;padding:14px 28px;cursor:pointer;border:2px solid #9d4eff;background:#12151f;color:#9d4eff;box-shadow:0 4px 0 0 #5a1fa8;}
-#btn-offline-login{font-family:'Press Start 2P',monospace;font-size:7px;padding:10px 20px;cursor:pointer;border:2px solid #7060a8;background:transparent;color:#7060a8;}
-#btn-google-login:active{transform:translateY(2px);box-shadow:0 2px 0 0 #5a1fa8;}
+#btn-google-login{font-family:'Press Start 2P',monospace;font-size:8px;padding:14px 28px;cursor:pointer;border:2px solid #7c6af7;background:#13141a;color:#7c6af7;box-shadow:0 4px 0 0 #3d2fa8;}
+#btn-offline-login{font-family:'Press Start 2P',monospace;font-size:7px;padding:10px 20px;cursor:pointer;border:2px solid #565680;background:transparent;color:#565680;}
+#btn-google-login:active{transform:translateY(2px);box-shadow:0 2px 0 0 #3d2fa8;}
 </style>
 </head>
 <body>
 
-<div id="boot-screen" style="position:fixed;inset:0;background:#08090d;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
-  <div style="font-family:'Press Start 2P',monospace;font-size:18px;color:#9d4eff;text-shadow:0 0 20px #9d4eff;letter-spacing:2px;" id="boot-title"></div>
-  <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#7060a8;" id="boot-sub"></div>
-  <div style="width:200px;height:12px;background:#12151f;border:2px solid #2a3050;margin-top:10px;">
-    <div id="boot-bar" style="height:100%;width:0%;background:repeating-linear-gradient(90deg,#9d4eff 0,#9d4eff 6px,#5a1fa8 6px,#5a1fa8 8px);transition:width .1s steps(4);"></div>
+<div id="boot-screen" style="position:fixed;inset:0;background:#0b0c10;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-family:'Press Start 2P',monospace;font-size:18px;color:#7c6af7;text-shadow:0 0 20px #7c6af7;letter-spacing:2px;" id="boot-title"></div>
+  <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#565680;" id="boot-sub"></div>
+  <div style="width:200px;height:14px;background:#1c1e28;border:2px solid #383c54;margin-top:10px;">
+    <div id="boot-bar" style="height:100%;width:0%;background:repeating-linear-gradient(90deg,#7c6af7 0,#7c6af7 6px,#3d2fa8 6px,#3d2fa8 8px);transition:width .1s steps(4);"></div>
   </div>
-  <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:#3d3560;" id="boot-status">INITIALIZING...</div>
+  <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:#383c54;" id="boot-status">INITIALIZING...</div>
   <div id="boot-login-btns">
     <button id="btn-google-login" onclick="window.driveSync&&window.driveSync.login()">&#9670; LOGIN WITH GOOGLE</button>
     <button id="btn-offline-login" onclick="window.driveSync&&window.driveSync.continueOffline()">CONTINUE OFFLINE</button>
@@ -204,11 +205,11 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <div style="font-family:var(--font-head);font-size:6px;color:var(--text3);cursor:pointer;" onclick="openProfile()">&#9881; SETTINGS</div>
     </div>
   </div>
-  <div class="xp-bar-wrap" style="margin-top:6px;"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+  <div class="xp-bar-wrap" style="margin-top:6px;"><div class="xp-bar" id="xp-bar" style="width:0%"></div><span class="xp-bar-pct" id="xp-bar-pct">0%</span></div>
 </div>
 
 <div class="topbar">
-  <div class="topbar-title">SAIL.MGR<span class="blink">_</span></div>
+  <div class="topbar-title">MANAGER ASSIST<span class="blink">_</span></div>
   <div id="sync-indicator" class="sync-indicator sync-idle"><span class="sync-icon">&#9670;</span><span class="sync-label">OFFLINE</span></div>
   <div class="topbar-actions">
     <button class="px-btn sm" onclick="openModal('event')">+EVT</button>
@@ -447,7 +448,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <div style="margin-bottom:10px;">
       <label class="form-label">THEME COLOR</label>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px;" id="theme-colors">
-        <div class="color-swatch active" data-color="#9d4eff" data-dark="#5a1fa8" style="background:#9d4eff;height:32px;border:2px solid white;cursor:pointer;" onclick="setTheme('#9d4eff','#5a1fa8',this)"></div>
+        <div class="color-swatch active" data-color="#7c6af7" data-dark="#3d2fa8" style="background:#7c6af7;height:32px;border:2px solid white;cursor:pointer;" onclick="setTheme('#7c6af7','#3d2fa8',this)"></div>
         <div class="color-swatch" data-color="#00ff41" data-dark="#003310" style="background:#00ff41;height:32px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#00ff41','#003310',this)"></div>
         <div class="color-swatch" data-color="#00ffff" data-dark="#004444" style="background:#00ffff;height:32px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#00ffff','#004444',this)"></div>
         <div class="color-swatch" data-color="#ff2244" data-dark="#440011" style="background:#ff2244;height:32px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#ff2244','#440011',this)"></div>
@@ -491,7 +492,7 @@ const DN=["L","M","X","J","V","S","D"];
 const XP_LEVELS=[0,300,800,1800,3500,6000,10000,16000,25000,40000,60000];
 const RANKS=[
   {min:0,name:"DECK HAND",color:"#7060a8",glow:"rgba(112,96,168,.4)"},
-  {min:100,name:"SAILOR",color:"#9d4eff",glow:"rgba(157,78,255,.4)"},
+  {min:100,name:"SAILOR",color:"#7c6af7",glow:"rgba(124,106,247,.4)"},
   {min:300,name:"BOSUN",color:"#00ffff",glow:"rgba(0,255,255,.4)"},
   {min:700,name:"HELMSMAN",color:"#00e676",glow:"rgba(0,230,118,.4)"},
   {min:1500,name:"FIRST MATE",color:"#ffff00",glow:"rgba(255,255,0,.4)"},
@@ -578,6 +579,7 @@ function updateXPBar(){
   document.getElementById("lvl-badge").textContent="LVL "+String(lvl).padStart(2,"0");
   document.getElementById("xp-label").textContent=String(xp).padStart(5,"0")+" XP";
   document.getElementById("xp-bar").style.width=pct+"%";
+  const pctEl=document.getElementById("xp-bar-pct");if(pctEl)pctEl.textContent=pct+"%";
   const rank=getRank(xp);const rb=document.getElementById("rank-badge");
   rb.textContent=rank.name;rb.style.borderColor=rank.color;rb.style.color=rank.color;
 }
@@ -646,7 +648,7 @@ function startECG(score){
   canvas.width=rect.width*dpr;canvas.height=70*dpr;
   const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=70;
   let color,speed,amplitude,frequency;
-  if(score>=75){color="#9d4eff";speed=2;amplitude=18;frequency=0.08;}
+  if(score>=75){color="#7c6af7";speed=2;amplitude=18;frequency=0.08;}
   else if(score>=45){color="#ff8800";speed=3;amplitude=24;frequency=0.12;}
   else if(score>=20){color="#ff2244";speed=4.5;amplitude=22;frequency=0.18;}
   else{color="#3d3560";speed=0;amplitude=0;frequency=0;}
@@ -756,7 +758,7 @@ function toggleShare(){
 }
 function generateShareText(p){
   const db=p.deadline?daysLeft(p.deadline):null;const dStr=db!==null?(db<=0?" (EXPIRED)":" ("+db+" days)"):"";
-  let txt="SAIL.MGR STATUS REPORT\n========================\nPROJECT: "+p.name+"\nSTATUS: "+SLT[p.status]+" | URG: "+p.urgency.toUpperCase()+"\n";
+  let txt="MANAGER ASSIST STATUS REPORT\n=============================\nPROJECT: "+p.name+"\nSTATUS: "+SLT[p.status]+" | URG: "+p.urgency.toUpperCase()+"\n";
   if(p.deadline)txt+="DEADLINE: "+p.deadline+dStr+"\n";if(p.owner)txt+="OWNER: "+p.owner+"\n";txt+="\nNEXT ACTION:\n"+(p.next||"--");
   if(p.history&&p.history.length){const last=p.history[p.history.length-1];txt+="\n\nLAST LOG ("+last.date+"):\n"+last.text;}return txt;
 }
@@ -798,9 +800,9 @@ function renderStats(){
   var total=projects.length,urgent=projects.filter(p=>p.status==="critico").length,inprog=projects.filter(p=>p.status==="produccion").length,onhold=projects.filter(p=>p.status==="gestion").length,ready=projects.filter(p=>p.status==="listo").length,parked=projects.filter(p=>p.status==="aplazado").length;
   document.getElementById("stat-total").textContent=pad(total);document.getElementById("stat-urgent").textContent=pad(urgent);document.getElementById("stat-progress").textContent=pad(inprog);document.getElementById("stat-hold").textContent=pad(onhold);
   var canvas=document.getElementById("stats-chart");if(!canvas)return;var ctx=canvas.getContext("2d"),W=120,H=120,cx=60,cy=60,r=46,inner=28;ctx.clearRect(0,0,W,H);
-  var segments=[{val:urgent,color:"#ff2244",label:"URGENT"},{val:inprog,color:"#9d4eff",label:"IN PROG"},{val:onhold,color:"#ff8800",label:"ON HOLD"},{val:ready,color:"#00ffff",label:"READY"},{val:parked,color:"#7060a8",label:"PARKED"}].filter(s=>s.val>0);
+  var segments=[{val:urgent,color:"#f05060",label:"URGENT"},{val:inprog,color:"#7c6af7",label:"IN PROG"},{val:onhold,color:"#f0903a",label:"ON HOLD"},{val:ready,color:"#22d3ee",label:"READY"},{val:parked,color:"#565680",label:"PARKED"}].filter(s=>s.val>0);
   if(!segments.length){ctx.fillStyle="#7060a8";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();}else{var tot=segments.reduce((s,x)=>s+x.val,0),angle=-Math.PI/2;segments.forEach(seg=>{var sweep=(seg.val/tot)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+sweep);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();angle+=sweep;});}
-  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);ctx.fillStyle="#08090d";ctx.fill();ctx.fillStyle="#9d4eff";ctx.font="bold 14px 'Press Start 2P',monospace";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(String(total).padStart(2,"0"),cx,cy);
+  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);ctx.fillStyle="#0b0c10";ctx.fill();ctx.fillStyle="#7c6af7";ctx.font="bold 14px 'Press Start 2P',monospace";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(String(total).padStart(2,"0"),cx,cy);
   document.getElementById("chart-legend").innerHTML=segments.map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:10px;height:10px;background:${s.color};display:inline-block;"></span><span style="font-family:var(--font-head);font-size:6px;color:var(--text2);">${s.label}</span><span style="font-family:var(--font-head);font-size:8px;color:${s.color};margin-left:auto;">${pad(s.val)}</span></div>`).join("");
   var now=new Date();var soon=projects.filter(p=>{if(!p.deadline||p.status==="aplazado")return false;var diff=(new Date(p.deadline)-now)/86400000;return diff>=-1&&diff<=60;}).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
   document.getElementById("upcoming-deadlines").innerHTML=!soon.length?`<div style="font-size:13px;color:var(--text3);">> NO DEADLINES IN NEXT 60 DAYS</div>`:soon.slice(0,6).map(p=>{var d=Math.ceil((new Date(p.deadline)-now)/86400000);var col=d<0?"var(--red)":d<=7?"var(--amber)":"var(--text2)";var dstr=d<0?"EXPIRED":d===0?"TODAY":d+"D";return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border2);"><div style="flex:1;min-width:0;"><div style="font-family:var(--font-head);font-size:6px;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div><div style="font-size:12px;color:var(--text3);margin-top:2px;">${p.deadline}</div></div><span style="font-family:var(--font-head);font-size:8px;color:${col};flex-shrink:0;">${dstr}</span></div>`;}).join("");
@@ -809,13 +811,13 @@ function renderStats(){
   document.getElementById("owner-breakdown").innerHTML=ownerList.map(o=>`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-family:var(--font-head);font-size:7px;color:var(--text2);">${o}</span><span style="font-family:var(--font-head);font-size:7px;color:var(--accent);">${pad(owners[o])}</span></div><div style="height:8px;background:var(--bg2);border:1px solid var(--border2);"><div style="height:100%;width:${Math.round(owners[o]/maxO*100)}%;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,var(--accent-dark) 6px,var(--accent-dark) 8px);"></div></div></div>`).join("");
 }
 function exportData(){const d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="sail-mgr-"+new Date().toISOString().split("T")[0]+".json";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showSaved();}
-function shareViaWhatsApp(){var d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};var jsonStr=JSON.stringify(d,null,2);if(navigator.share){navigator.share({title:"SAIL.MGR Backup",text:"Sail Manager backup "+new Date().toLocaleDateString("es-ES")}).catch(()=>{});}else{navigator.clipboard.writeText(jsonStr).then(()=>showToast("JSON COPIED TO CLIPBOARD"));}}
+function shareViaWhatsApp(){var d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};var jsonStr=JSON.stringify(d,null,2);if(navigator.share){navigator.share({title:"MANAGER ASSIST Backup",text:"Sail Manager backup "+new Date().toLocaleDateString("es-ES")}).catch(()=>{});}else{navigator.clipboard.writeText(jsonStr).then(()=>showToast("JSON COPIED TO CLIPBOARD"));}}
 function importData(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{const d=JSON.parse(e.target.result);if(!d.projects)throw new Error("Invalid");if(!confirm("REPLACE ALL DATA?"))return;projects=d.projects.map(p=>({...p,history:p.history||[]}));todos=d.todos||[];hourEntries=d.hourEntries||[];persist();renderDaily();renderProjects(projFilter);showToast("LOADED: "+projects.length+" PROJECTS");}catch(err){alert("ERROR: "+err.message);}event.target.value="";};reader.readAsText(file);}
 function openModal(t){document.getElementById("modal-"+t).classList.add("open");}
 function closeModal(t){document.getElementById("modal-"+t).classList.remove("open");}
 function copyEventText(){const title=document.getElementById("ev-title").value.trim(),date=document.getElementById("ev-date").value;if(!title||!date){alert("FILL TITLE AND DATE");return;}navigator.clipboard.writeText(`Crea evento: "${title}" el ${date}`).then(()=>{alert("COPIED");closeModal("event");});}
 function runBoot(){
-  var title="SAIL.MGR",subs=["v4.0","LOADING...","CHECKING...","READY"],titleEl=document.getElementById("boot-title"),subEl=document.getElementById("boot-sub"),bar=document.getElementById("boot-bar"),i=0;
+  var title="MANAGER ASSIST",subs=["v4.0","LOADING...","CHECKING...","READY"],titleEl=document.getElementById("boot-title"),subEl=document.getElementById("boot-sub"),bar=document.getElementById("boot-bar"),i=0;
   function typeTitle(){if(i<title.length){titleEl.textContent+=title[i];i++;setTimeout(typeTitle,80);}else{setTimeout(runSubs,200);}}
   var subIdx=0,barPct=0;
   function runSubs(){if(subIdx>=subs.length){setTimeout(showLoginButtons,200);return;}subEl.textContent=subs[subIdx];barPct=Math.min(100,barPct+25);bar.style.width=barPct+"%";subIdx++;setTimeout(runSubs,350);}
@@ -832,12 +834,12 @@ function loadAvatarPhoto(event){
   };reader.readAsDataURL(file);
 }
 function openProfile(){
-  var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#9d4eff",dark:"#5a1fa8",crt:true});avatarIdx=prof.avatar||0;customAvatarData=prof.customAvatar||null;
+  var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#7c6af7",dark:"#3d2fa8",crt:true});avatarIdx=prof.avatar||0;customAvatarData=prof.customAvatar||null;
   var el=document.getElementById("profile-avatar");
   if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';}else{el.innerHTML=AVATARS[avatarIdx];}
   document.getElementById("profile-name").value=prof.name||"";
   document.getElementById("prof-xp").textContent=String(gdata.xp||0);document.getElementById("prof-lvl").textContent=String(getLvl(gdata.xp||0)).padStart(2,"0");document.getElementById("prof-rank").textContent=getRank(gdata.xp||0).name;document.getElementById("prof-done").textContent=String(gdata.completed||0);
-  document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#9d4eff"));s.style.borderColor=s.dataset.color===(prof.theme||"#9d4eff")?"white":"transparent";});
+  document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#7c6af7"));s.style.borderColor=s.dataset.color===(prof.theme||"#7c6af7")?"white":"transparent";});
   var crtOn=prof.crt!==false;document.getElementById("crt-on").className="px-btn sm"+(crtOn?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(crtOn?" muted":"");
   openModal("profile");
 }
@@ -850,7 +852,7 @@ function saveProfile(){
   var name=document.getElementById("profile-name").value.trim()||"PLAYER";var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
   var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
 }
-function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#5a1fa8");setCRT(prof.crt!==false);}
+function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#3d2fa8");setCRT(prof.crt!==false);}
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
