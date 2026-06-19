@@ -247,6 +247,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
     </div>
     <div class="sec-hd">ALERTS</div>
     <div id="daily-alerts" style="margin-bottom:18px;"></div>
+    <div class="sec-hd">NEXT STEPS</div>
+    <div id="next-steps-list" style="margin-bottom:16px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <div class="sec-hd" style="margin:0;">TASK QUEUE</div>
       <span id="todo-count" style="font-size:12px;font-weight:500;color:var(--text3);"></span>
@@ -605,20 +607,34 @@ function checkAchievements(){
   if(changed){store("sm-g",gdata);updateXPBar();}
 }
 function calcHealth(){
-  let score=100;const factors=[];const now=new Date();
-  const crits=projects.filter(p=>p.status==="critico"&&p.status!=="finalizado");
-  const critPenalty=crits.length*12;score-=Math.min(critPenalty,40);
-  factors.push({label:"CRITICAL PROJECTS",val:crits.length,penalty:Math.min(critPenalty,40),good:crits.length===0,desc:crits.length===0?"No critical projects":crits.length+" projects need immediate attention"});
-  const expired=projects.filter(p=>{if(!p.deadline||p.status==="aplazado"||p.status==="listo"||p.status==="finalizado")return false;return new Date(p.deadline)<now;});
-  const expPenalty=expired.length*15;score-=Math.min(expPenalty,30);
-  factors.push({label:"EXPIRED DEADLINES",val:expired.length,penalty:Math.min(expPenalty,30),good:expired.length===0,desc:expired.length===0?"All deadlines on track":expired.length+" deadlines past due"});
-  const inactive=projects.filter(p=>{if(p.status==="aplazado"||p.status==="listo"||p.status==="finalizado"||p.status==="gestion")return false;const hasLogs=p.history&&p.history.length>0;const hasPipeline=p.pipeline&&Object.values(p.pipeline).some(Boolean);return !hasLogs&&!hasPipeline;});
-  const inactPenalty=Math.min(inactive.length*3,20);score-=inactPenalty;
-  factors.push({label:"ACTIVE PROJECTS WITHOUT LOGS",val:inactive.length,penalty:inactPenalty,good:inactive.length<5,desc:inactive.length<5?"Good log coverage":inactive.length+" in-progress projects have no notes (parked & on hold excluded)"});
-  const doneRatio=projects.length>0?Math.round((gdata.completed||0)/Math.max(projects.length,1)*100):0;
-  const ratioPenalty=doneRatio<10?10:0;score-=ratioPenalty;
-  factors.push({label:"COMPLETION RATIO",val:doneRatio+"%",penalty:ratioPenalty,good:doneRatio>=10,desc:doneRatio>=10?"Healthy completion rate":"Low completion rate"});
-  return{score:Math.max(0,Math.min(100,score)),factors};
+  let score=100;const factors=[];const now=new Date();const todayStr=new Date().toISOString().split("T")[0];
+  const active=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado");
+
+  /* Factor 1 — Sin deadline (obligatorio) */
+  const noDeadline=active.filter(p=>p.status!=="listo"&&!p.deadline);
+  const noDeadlinePenalty=Math.min(noDeadline.length*8,30);score-=noDeadlinePenalty;
+  factors.push({label:"PROJECTS WITHOUT DEADLINE",val:noDeadline.length,penalty:noDeadlinePenalty,good:noDeadline.length===0,desc:noDeadline.length===0?"All active projects have a deadline":noDeadline.length+" projects need a deadline set"});
+
+  /* Factor 2 — Deadlines vencidos */
+  const expired=active.filter(p=>{if(!p.deadline||p.status==="listo")return false;return new Date(p.deadline)<now;});
+  const expPenalty=Math.min(expired.length*20,30);score-=expPenalty;
+  factors.push({label:"EXPIRED DEADLINES",val:expired.length,penalty:expPenalty,good:expired.length===0,desc:expired.length===0?"All deadlines on track":expired.length+" deadlines past due"});
+
+  /* Factor 3 — Deadlines en ≤7 días */
+  const urgent7=active.filter(p=>{if(!p.deadline||p.status==="listo")return false;const d=Math.ceil((new Date(p.deadline)-now)/86400000);return d>=0&&d<=7;});
+  const urg7Penalty=Math.min(urgent7.length*10,30);score-=urg7Penalty;
+  factors.push({label:"DUE IN 7 DAYS",val:urgent7.length,penalty:urg7Penalty,good:urgent7.length===0,desc:urgent7.length===0?"No imminent deadlines":urgent7.length+" projects due within a week"});
+
+  /* Factor 4 — IN PROGRESS/URGENT sin actividad en 3 días */
+  const stale=active.filter(p=>{if(p.status==="gestion"||p.status==="listo")return false;const lastLog=p.history&&p.history.length>0?new Date(p.history[p.history.length-1].date.split(" ")[0].split("/").reverse().join("-")):null;const hasPipe=p.pipeline&&Object.values(p.pipeline).some(Boolean);if(hasPipe&&!lastLog)return false;if(!lastLog)return true;const daysSince=(now-lastLog)/86400000;return daysSince>3;});
+  const stalePenalty=Math.min(stale.length*5,25);score-=stalePenalty;
+  factors.push({label:"NO ACTIVITY IN 3+ DAYS",val:stale.length,penalty:stalePenalty,good:stale.length===0,desc:stale.length===0?"All active projects have recent activity":stale.length+" projects have gone quiet"});
+
+  /* Bonus — actividad hoy */
+  const activeToday=active.filter(p=>{return p.history&&p.history.some(h=>h.date&&h.date.includes(new Date().toLocaleDateString("es-ES")));});
+  const bonus=Math.min(activeToday.length*3,15);score=Math.min(100,score+bonus);
+
+  return{score:Math.max(0,Math.min(100,score)),factors,bonus};
 }
 function renderHealth(){
   const{score,factors}=calcHealth();
@@ -634,9 +650,10 @@ function renderHealth(){
   setTimeout(()=>startECG(score),50);
   document.getElementById("health-factors").innerHTML=factors.map(f=>`<div class="health-factor"><div style="flex:1;"><div class="health-factor-label">${f.label}</div><div class="health-factor-bar"><div class="health-factor-fill" style="width:${f.good?100:Math.max(10,100-f.penalty*3)}%;background:${f.good?"var(--green)":f.penalty>15?"var(--red)":"var(--amber)"};"></div></div><div style="font-size:12px;color:var(--text3);margin-top:3px;">${f.desc}</div></div><div class="health-factor-val ${f.good?"good":f.penalty>15?"bad":"warn"}" style="margin-left:12px;font-size:11px;">${f.val}</div></div>`).join("");
   const recList=[];
-  if(factors[0].val>0)recList.push("&#9658; Address "+factors[0].val+" critical project(s) immediately.");
-  if(factors[1].val>0)recList.push("&#9658; "+factors[1].val+" deadline(s) expired. Update or reschedule.");
-  if(factors[2].val>5)recList.push("&#9658; Add log entries to inactive projects.");
+  if(factors[0].val>0)recList.push("&#9658; "+factors[0].val+" project(s) missing a deadline — set one now so the health score reflects reality.");
+  if(factors[1].val>0)recList.push("&#9658; "+factors[1].val+" deadline(s) expired. Update the date or escalate urgency.");
+  if(factors[2].val>0)recList.push("&#9658; "+factors[2].val+" project(s) due within 7 days — review and act.");
+  if(factors[3].val>0)recList.push("&#9658; "+factors[3].val+" project(s) with no activity in 3+ days. Add a log entry or update status.");
   if(score>=75)recList.push("&#9658; Department is healthy. Keep the momentum going.");
   if(!recList.length)recList.push("&#9658; All systems nominal. Good work.");
   document.getElementById("health-recs").innerHTML=recList.map(r=>`<div style="background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14px;color:var(--text2);line-height:1.5;">${r}</div>`).join("");
@@ -695,9 +712,19 @@ function nav(id,el){
 function renderDaily(){
   document.getElementById("m-total").textContent=pad(projects.length);document.getElementById("m-prod").textContent=pad(projects.filter(p=>p.status==="produccion").length);document.getElementById("m-crit").textContent=pad(projects.filter(p=>p.status==="critico").length);document.getElementById("m-gest").textContent=pad(projects.filter(p=>p.status==="gestion"||p.status==="listo").length);
   const al=document.getElementById("daily-alerts");const crits=projects.filter(p=>p.status==="critico");const soon=projects.filter(p=>{if(!p.deadline)return false;const d=daysLeft(p.deadline);return d!==null&&d>=0&&d<=5&&p.status!=="critico";});
-  let html="";crits.forEach(p=>{html+=`<div class="alert danger" onclick="editProject(${p.id})"><div style="flex:1;"><strong>${p.name}</strong>${daysBadge(p.deadline)?(" "+daysBadge(p.deadline)):""}<span style="display:block;font-size:12px;margin-top:2px;opacity:.8;">${p.next}</span></div></div>`;});soon.forEach(p=>{html+=`<div class="alert warn" onclick="editProject(${p.id})"><div style="flex:1;"><strong>${p.name}</strong> ${daysBadge(p.deadline)}<span style="display:block;font-size:12px;margin-top:2px;opacity:.8;">${p.next}</span></div></div>`;});
-  if(!html)html=`<div style="font-size:14px;color:var(--text3);padding:6px 0 12px;">> NO CRITICAL ALERTS</div>`;
-  al.innerHTML=html;renderTodos();
+  const noDeadline=projects.filter(p=>!p.deadline&&p.status!=="aplazado"&&p.status!=="finalizado"&&p.status!=="listo");
+  let html="";
+  noDeadline.forEach(p=>{html+=`<div class="alert warn" onclick="editProject(${p.id})"><div style="flex:1;"><strong>⚠ NO DEADLINE: ${p.name}</strong><span style="display:block;font-size:12px;margin-top:2px;opacity:.8;">Set a deadline to track this project properly</span></div></div>`;});
+  crits.forEach(p=>{html+=`<div class="alert danger" onclick="editProject(${p.id})"><div style="flex:1;"><strong>${p.name}</strong>${daysBadge(p.deadline)?(" "+daysBadge(p.deadline)):""}<span style="display:block;font-size:12px;margin-top:2px;opacity:.8;">${p.next}</span></div></div>`;});
+  soon.forEach(p=>{html+=`<div class="alert warn" onclick="editProject(${p.id})"><div style="flex:1;"><strong>${p.name}</strong> ${daysBadge(p.deadline)}<span style="display:block;font-size:12px;margin-top:2px;opacity:.8;">${p.next}</span></div></div>`;});
+  if(!html)html=`<div style="font-size:14px;color:var(--text3);padding:6px 0 12px;">No alerts today</div>`;
+  al.innerHTML=html;
+  /* NEXT STEPS from active projects */
+  const ns=document.getElementById("next-steps-list");
+  const withNext=projects.filter(p=>p.next&&p.next.trim()&&p.status!=="aplazado"&&p.status!=="finalizado").sort((a,b)=>{const po={critico:0,produccion:1,listo:2,gestion:3};return (po[a.status]||9)-(po[b.status]||9);});
+  if(!withNext.length){ns.innerHTML=`<div style="font-size:14px;color:var(--text3);padding:4px 0 8px;">No next steps defined</div>`;}
+  else{ns.innerHTML=withNext.map(p=>{const col=p.status==="critico"?"var(--red)":p.status==="produccion"?"var(--accent)":p.status==="listo"?"var(--green)":"var(--amber)";const db=p.deadline?daysBadge(p.deadline):"";return `<div onclick="editProject(${p.id})" style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg1);border:1px solid var(--border2);border-left:4px solid ${col};border-radius:10px;margin-bottom:6px;cursor:pointer;"><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:2px;">${p.name}</div><div style="font-size:14px;color:var(--text1);">${p.next}</div></div>${db?`<div style="flex-shrink:0;margin-top:2px;">${db}</div>`:""}</div>`;}).join("");}
+  renderTodos();
 }
 function addTodo(){const inp=document.getElementById("todo-input");const t=inp.value.trim();if(!t)return;todos.push({id:Date.now(),text:t,done:false});inp.value="";addXP(2,"TASK ADDED");persist();renderTodos();}
 function renderTodos(){
