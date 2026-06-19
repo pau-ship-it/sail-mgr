@@ -107,11 +107,12 @@ html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflo
 .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
 .section-label{font-size:11px;font-weight:600;color:var(--text3);padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
 /* HEALTH */
-.health-main-card{background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:16px;}
-.health-pct{font-size:48px;font-weight:800;text-align:center;margin-bottom:4px;line-height:1.1;}
-.health-label{font-size:13px;font-weight:500;text-align:center;color:var(--text2);margin-bottom:16px;}
-.health-bar-wrap{height:12px;background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:16px;overflow:hidden;}
-.health-bar{height:100%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#38bdf8);border-radius:10px;transition:width .6s ease;}
+.health-main-card{background:linear-gradient(145deg,var(--bg1) 0%,#0a1628 100%);border:1px solid var(--border2);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.health-pct{font-size:64px;font-weight:800;text-align:center;margin-bottom:2px;line-height:1;}
+.health-label{font-size:12px;font-weight:600;text-align:center;color:var(--text2);margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;}
+.health-bar-wrap{height:16px;background:rgba(255,255,255,.05);border-radius:12px;overflow:hidden;position:relative;box-shadow:inset 0 2px 4px rgba(0,0,0,.3);}
+.health-bar{height:100%;background:linear-gradient(90deg,#1d4ed8,#3b82f6,#60a5fa,#38bdf8);border-radius:12px;transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 16px rgba(59,130,246,.5);position:relative;}
+.health-bar::after{content:"";position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.15);border-radius:12px 12px 0 0;}
 @keyframes card-flash{0%{box-shadow:none}40%{box-shadow:0 0 12px rgba(59,130,246,.5)}100%{box-shadow:none}}
 .px-card:active{animation:card-flash .3s ease-out;}
 .color-swatch{transition:border-color .1s;}.color-swatch.active{border-color:white !important;}
@@ -283,15 +284,15 @@ select option{background:var(--bg1);}textarea{resize:none;}
 
   <div class="view" id="view-health">
     <div class="health-main-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;">DEPT. HEALTH</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">DEPT. HEALTH</div>
         <div class="status-chip" id="health-chip">LOADING</div>
       </div>
       <div class="health-pct" id="health-pct">--</div>
       <div class="health-label" id="health-label">CALCULATING...</div>
-      <div class="health-bar-wrap"><div class="health-bar" id="health-bar" style="width:0%;"></div></div>
-      <div class="ecg-wrap" style="position:relative;">
-        <canvas id="ecg-canvas" style="width:100%;height:70px;display:block;"></canvas>
+      <div class="health-bar-wrap" style="margin-bottom:20px;"><div class="health-bar" id="health-bar" style="width:0%;"></div></div>
+      <div class="ecg-wrap" style="position:relative;overflow:hidden;border-radius:10px;">
+        <canvas id="ecg-canvas" style="width:100%;height:80px;display:block;"></canvas>
       </div>
     </div>
     <div class="sec-hd">HEALTH FACTORS</div>
@@ -333,10 +334,6 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
       <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">UPCOMING DEADLINES</div>
       <div id="upcoming-deadlines"></div>
-    </div>
-    <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:20px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">BY OWNER</div>
-      <div id="owner-breakdown"></div>
     </div>
     <div style="height:2px;background:var(--border2);margin-bottom:16px;"></div>
     <div class="sec-hd">SYNC & BACKUP</div>
@@ -403,10 +400,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <div><label class="form-label">STATUS</label><select id="pj-status"><option value="produccion">IN PROGRESS</option><option value="gestion">ON HOLD</option><option value="critico">URGENT</option><option value="listo">READY</option><option value="aplazado">PARKED</option></select></div>
       <div><label class="form-label">URGENCY</label><select id="pj-urgency"><option value="alta">HIGH</option><option value="media">MED</option><option value="baja">LOW</option></select></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div><label class="form-label">DEADLINE</label><input type="date" id="pj-deadline"/></div>
-      <div><label class="form-label">OWNER</label><input type="text" id="pj-owner" placeholder="NAME"/></div>
-    </div>
+    <div style="margin-bottom:10px;"><label class="form-label">DEADLINE</label><input type="date" id="pj-deadline"/></div>
     <div style="margin-bottom:10px;"><label class="form-label">NEXT ACTION</label><input type="text" id="pj-next"/></div>
     <div style="margin-bottom:10px;"><label class="form-label">NOTES</label><textarea id="pj-notes" style="height:48px;"></textarea></div>
     <div id="pipeline-wrap" style="display:none;margin-bottom:10px;">
@@ -641,11 +635,11 @@ function renderHealth(){
   const pct=document.getElementById("health-pct"),label=document.getElementById("health-label"),bar=document.getElementById("health-bar"),chip=document.getElementById("health-chip");
   pct.textContent=score+"%";bar.style.width=score+"%";
   let status,color;
-  if(score>=75){status="STABLE";color="var(--green)";bar.style.background="linear-gradient(90deg,#065f46,#34d399)";}
-  else if(score>=45){status="WARNING";color="var(--amber)";bar.style.background="linear-gradient(90deg,#78350f,#fbbf24)";}
-  else if(score>=20){status="CRITICAL";color="var(--red)";bar.style.background="linear-gradient(90deg,#7f1d1d,#f87171)";}
-  else{status="FLATLINE";color="var(--text3)";bar.style.background="var(--text3)";}
-  pct.style.color=color;label.style.color=color;label.textContent="Dept Status: "+status;
+  if(score>=75){status="STABLE";color="var(--green)";bar.style.background="linear-gradient(90deg,#065f46,#34d399,#6ee7b7)";bar.style.boxShadow="0 0 16px rgba(52,211,153,.4)";}
+  else if(score>=45){status="WARNING";color="var(--amber)";bar.style.background="linear-gradient(90deg,#78350f,#fbbf24,#fde68a)";bar.style.boxShadow="0 0 16px rgba(251,191,36,.4)";}
+  else if(score>=20){status="CRITICAL";color="var(--red)";bar.style.background="linear-gradient(90deg,#7f1d1d,#f87171,#fca5a5)";bar.style.boxShadow="0 0 16px rgba(248,113,113,.4)";}
+  else{status="FLATLINE";color="var(--text3)";bar.style.background="var(--text3)";bar.style.boxShadow="none";}
+  pct.style.color=color;pct.style.textShadow=`0 0 40px ${color}`;label.style.color=color;label.textContent="Dept Status: "+status;
   chip.textContent=status;chip.style.borderColor=color;chip.style.color=color;chip.style.background=color.replace("var(--","").replace(")","")+"20";
   setTimeout(()=>startECG(score),50);
   document.getElementById("health-factors").innerHTML=factors.map(f=>`<div class="health-factor"><div style="flex:1;"><div class="health-factor-label">${f.label}</div><div class="health-factor-bar"><div class="health-factor-fill" style="width:${f.good?100:Math.max(10,100-f.penalty*3)}%;background:${f.good?"var(--green)":f.penalty>15?"var(--red)":"var(--amber)"};"></div></div><div style="font-size:12px;color:var(--text3);margin-top:3px;">${f.desc}</div></div><div class="health-factor-val ${f.good?"good":f.penalty>15?"bad":"warn"}" style="margin-left:12px;font-size:11px;">${f.val}</div></div>`).join("");
@@ -677,8 +671,8 @@ let ecgAnim=null;
 function startECG(score){
   const canvas=document.getElementById("ecg-canvas");if(!canvas)return;
   const dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
-  canvas.width=rect.width*dpr;canvas.height=70*dpr;
-  const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=70;
+  canvas.width=rect.width*dpr;canvas.height=80*dpr;
+  const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=80;
   let color,speed,amplitude,frequency;
   if(score>=75){color="#34d399";speed=2;amplitude=18;frequency=0.08;}
   else if(score>=45){color="#fbbf24";speed=3;amplitude=24;frequency=0.12;}
@@ -762,7 +756,7 @@ function projCard(p){
 }
 function addNewProject(){
   editingProjId=null;document.getElementById("proj-modal-title").textContent="New Project";
-  ["pj-name","pj-next","pj-owner","pj-deadline","pj-notes"].forEach(id=>document.getElementById(id).value="");
+  ["pj-name","pj-next","pj-deadline","pj-notes"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
   document.getElementById("pj-status").value="gestion";document.getElementById("pj-urgency").value="media";
   ["pj-delete-wrap","pj-finish-wrap","pipeline-wrap","notes-history-wrap","share-wrap","verdict-wrap"].forEach(id=>document.getElementById(id).style.display="none");
   document.getElementById("share-box").style.display="none";openModal("project");
@@ -770,7 +764,7 @@ function addNewProject(){
 function editProject(id){
   const p=projects.find(x=>x.id===id);if(!p)return;editingProjId=id;
   document.getElementById("proj-modal-title").textContent="Edit: "+p.name.substring(0,20);
-  document.getElementById("pj-name").value=p.name;document.getElementById("pj-status").value=p.status;document.getElementById("pj-urgency").value=p.urgency;document.getElementById("pj-deadline").value=p.deadline||"";document.getElementById("pj-owner").value=p.owner||"";document.getElementById("pj-next").value=p.next||"";document.getElementById("pj-notes").value=p.notes||"";
+  document.getElementById("pj-name").value=p.name;document.getElementById("pj-status").value=p.status;document.getElementById("pj-urgency").value=p.urgency;document.getElementById("pj-deadline").value=p.deadline||"";document.getElementById("pj-next").value=p.next||"";document.getElementById("pj-notes").value=p.notes||"";
   ["pj-delete-wrap","pipeline-wrap","notes-history-wrap","share-wrap","verdict-wrap"].forEach(id=>document.getElementById(id).style.display="block");
   document.getElementById("pj-finish-wrap").style.display=p.status==="finalizado"?"none":"block";
   document.getElementById("share-box").style.display="none";renderPipeline(p);renderNotesHistory(p);generateVerdict(p);openModal("project");
@@ -791,7 +785,7 @@ function generateVerdict(p){
   let lines=[],verdict="";
   if(p.status==="critico"){lines.push("STATUS: CRITICAL. Requires immediate attention.");if(d!==null&&d<=3)lines.push("WARNING: Deadline in "+d+" days.");verdict="EXECUTE NOW";}
   else if(p.status==="produccion"){lines.push("Project is active in production.");if(notes===0)lines.push("No log entries. Consider documenting progress.");else lines.push("Last activity: "+last.date+".");if(d!==null&&d<=7)lines.push("Deadline approaching: "+d+" days.");verdict="MAINTAIN MOMENTUM";}
-  else if(p.status==="gestion"){lines.push("Project queued. Waiting for external action.");lines.push(p.owner?"Owner: "+p.owner+". Follow up.":"No owner assigned.");verdict="FOLLOW UP REQUIRED";}
+  else if(p.status==="gestion"){lines.push("Project queued. Waiting for external action.");lines.push("Follow up with relevant contact.");verdict="FOLLOW UP REQUIRED";}
   else if(p.status==="listo"){lines.push("Work complete. Ready for delivery.");verdict="SHIP IT";}
   else if(p.status==="finalizado"){lines.push("Project finished and archived.");verdict="MISSION ACCOMPLISHED";}
   else{lines.push("Project on hold.");verdict="AWAITING REACTIVATION";}
@@ -805,13 +799,13 @@ function toggleShare(){
 function generateShareText(p){
   const db=p.deadline?daysLeft(p.deadline):null;const dStr=db!==null?(db<=0?" (EXPIRED)":" ("+db+" days)"):"";
   let txt="MANAGER ASSIST STATUS REPORT\n=============================\nPROJECT: "+p.name+"\nSTATUS: "+SLT[p.status]+" | URG: "+p.urgency.toUpperCase()+"\n";
-  if(p.deadline)txt+="DEADLINE: "+p.deadline+dStr+"\n";if(p.owner)txt+="OWNER: "+p.owner+"\n";txt+="\nNEXT ACTION:\n"+(p.next||"--");
+  if(p.deadline)txt+="DEADLINE: "+p.deadline+dStr+"\n";txt+="\nNEXT ACTION:\n"+(p.next||"--");
   if(p.history&&p.history.length){const last=p.history[p.history.length-1];txt+="\n\nLAST LOG ("+last.date+"):\n"+last.text;}return txt;
 }
 function copyShareText(){navigator.clipboard.writeText(document.getElementById("share-text").textContent).then(()=>showSaved());}
 function saveProjectModal(){
   const name=document.getElementById("pj-name").value.trim();if(!name){alert("NAME REQUIRED");return;}
-  const data={name,status:document.getElementById("pj-status").value,urgency:document.getElementById("pj-urgency").value,deadline:document.getElementById("pj-deadline").value,owner:document.getElementById("pj-owner").value,next:document.getElementById("pj-next").value,notes:document.getElementById("pj-notes").value};
+  const data={name,status:document.getElementById("pj-status").value,urgency:document.getElementById("pj-urgency").value,deadline:document.getElementById("pj-deadline").value,next:document.getElementById("pj-next").value,notes:document.getElementById("pj-notes").value};
   if(editingProjId){const was=projects.find(p=>p.id===editingProjId)?.status;projects=projects.map(p=>p.id===editingProjId?{...p,...data}:p);if(data.status==="listo"&&was!=="listo"){gdata.completed=(gdata.completed||0)+1;addXP(30,"PROJECT READY!");}else addXP(3,"PROJECT UPDATED");}
   else{projects.unshift({id:Date.now(),...data,history:[]});addXP(10,"NEW PROJECT CREATED");}
   persist();closeModal("project");renderProjects(projFilter);editingProjId=null;checkAchievements();
@@ -852,9 +846,6 @@ function renderStats(){
   document.getElementById("chart-legend").innerHTML=segments.map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:10px;height:10px;background:${s.color};border-radius:50%;display:inline-block;"></span><span style="font-size:12px;font-weight:500;color:var(--text2);">${s.label}</span><span style="font-size:13px;font-weight:700;color:${s.color};margin-left:auto;">${pad(s.val)}</span></div>`).join("");
   var now=new Date();var soon=projects.filter(p=>{if(!p.deadline||p.status==="aplazado")return false;var diff=(new Date(p.deadline)-now)/86400000;return diff>=-1&&diff<=60;}).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
   document.getElementById("upcoming-deadlines").innerHTML=!soon.length?`<div style="font-size:13px;color:var(--text3);">No deadlines in next 60 days</div>`:soon.slice(0,6).map(p=>{var d=Math.ceil((new Date(p.deadline)-now)/86400000);var col=d<0?"var(--red)":d<=7?"var(--amber)":"var(--text2)";var dstr=d<0?"EXPIRED":d===0?"TODAY":d+"D";return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${p.deadline}</div></div><span style="font-size:12px;font-weight:700;color:${col};flex-shrink:0;">${dstr}</span></div>`;}).join("");
-  var owners={};projects.filter(p=>p.status!=="aplazado").forEach(p=>{var o=p.owner||"Unassigned";owners[o]=(owners[o]||0)+1;});
-  var ownerList=Object.keys(owners).sort((a,b)=>owners[b]-owners[a]),maxO=ownerList.length?owners[ownerList[0]]:1;
-  document.getElementById("owner-breakdown").innerHTML=ownerList.map(o=>`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;font-weight:500;color:var(--text2);">${o}</span><span style="font-size:13px;font-weight:700;color:var(--accent);">${pad(owners[o])}</span></div><div style="height:8px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;"><div style="height:100%;width:${Math.round(owners[o]/maxO*100)}%;background:linear-gradient(90deg,var(--accent-dark),var(--accent));border-radius:8px;"></div></div></div>`).join("");
 }
 function exportData(){const d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="sail-mgr-"+new Date().toISOString().split("T")[0]+".json";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showSaved();}
 function shareViaWhatsApp(){var d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};var jsonStr=JSON.stringify(d,null,2);if(navigator.share){navigator.share({title:"MANAGER ASSIST Backup",text:"Sail Manager backup "+new Date().toLocaleDateString("es-ES")}).catch(()=>{});}else{navigator.clipboard.writeText(jsonStr).then(()=>showToast("JSON COPIED TO CLIPBOARD"));}}
@@ -938,7 +929,7 @@ function applyDriveData(data){if(!data)return;try{if(typeof window.applyData==='
 function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s steps(4)';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';},450);}
 function waitForGIS(){return new Promise(resolve=>{if(window.google&&window.google.accounts){resolve();return;}const iv=setInterval(()=>{if(window.google&&window.google.accounts){clearInterval(iv);resolve();}},100);});}
 async function fetchUserInfo(token){try{const res=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+token}});if(!res.ok)return null;return res.json();}catch(_){return null;}}
-async function initGIS(){const clientId=(window.SAIL_CONFIG||{}).GOOGLE_CLIENT_ID;if(!clientId||clientId.includes('YOUR_CLIENT_ID')){console.warn('[DriveSync] No Google Client ID configured');return;}await waitForGIS();tokenClient=window.google.accounts.oauth2.initTokenClient({client_id:clientId,scope:SCOPE,callback:async(tokenResponse)=>{if(tokenResponse.error){console.error('[DriveSync] Token error:',tokenResponse.error);if(!isLoggedIn)setSyncStatus('idle');return;}saveToken(tokenResponse.access_token);isLoggedIn=true;const profile=await fetchUserInfo(tokenResponse.access_token);if(profile){saveUserProfile(profile);setUserBadge(profile);}const driveData=await loadFromDrive();if(driveData)applyDriveData(driveData);hideBoot();},});const wasLoggedIn=!!loadToken();if(wasLoggedIn){const savedProfile=loadUserProfile();if(savedProfile)setUserBadge(savedProfile);setSyncStatus('syncing');tokenClient.requestAccessToken({prompt:''});}};
+async function initGIS(){const clientId=(window.SAIL_CONFIG||{}).GOOGLE_CLIENT_ID;if(!clientId||clientId.includes('YOUR_CLIENT_ID')){console.warn('[DriveSync] No Google Client ID configured');return;}await waitForGIS();tokenClient=window.google.accounts.oauth2.initTokenClient({client_id:clientId,scope:SCOPE,callback:async(tokenResponse)=>{if(tokenResponse.error){console.error('[DriveSync] Token error:',tokenResponse.error);if(!isLoggedIn)setSyncStatus('idle');return;}saveToken(tokenResponse.access_token);isLoggedIn=true;const profile=await fetchUserInfo(tokenResponse.access_token);if(profile){saveUserProfile(profile);setUserBadge(profile);}const driveData=await loadFromDrive();if(driveData)applyDriveData(driveData);hideBoot();},});const wasLoggedIn=!!loadToken();if(wasLoggedIn){const savedProfile=loadUserProfile();if(savedProfile)setUserBadge(savedProfile);setSyncStatus('syncing');tokenClient.requestAccessToken({prompt:'',hint:savedProfile&&savedProfile.email?savedProfile.email:''});}};
 window.driveSync={triggerSave(){if(isLoggedIn&&!window._skipDriveSync)scheduleSave();},login(){if(!tokenClient){alert('Google Client ID not configured.');return;}tokenClient.requestAccessToken({prompt:'consent'});},continueOffline(){hideBoot();setSyncStatus('idle');},logout(){if(window.google&&window.google.accounts&&window.google.accounts.oauth2)window.google.accounts.oauth2.revoke(accessToken,()=>{});clearToken();isLoggedIn=false;setUserBadge(null);setSyncStatus('idle');location.reload();},get isLoggedIn(){return isLoggedIn;}};
 window.addEventListener('online',()=>{if(isLoggedIn){setSyncStatus('syncing');doSave();}});
 window.addEventListener('offline',()=>{if(isLoggedIn)setSyncStatus('error');});
