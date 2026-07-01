@@ -20,6 +20,12 @@
   --r:10px;--shadow:0 1px 2px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.25);
   --shadow-lg:0 4px 24px rgba(0,0,0,.6),0 1px 3px rgba(0,0,0,.5);
 }
+body.theme-midnight{--bg0:#0d0d14;--bg1:#131320;--bg2:#1a1a2e;background:linear-gradient(160deg,#0d0d14 0%,#16163a 100%)!important;}
+body.theme-ocean{--bg0:#080e18;--bg1:#0d1827;--bg2:#122033;background:linear-gradient(160deg,#080e18 0%,#0d2545 100%)!important;}
+body.theme-forest{--bg0:#080f0a;--bg1:#0d1a10;--bg2:#132018;background:linear-gradient(160deg,#080f0a 0%,#0e2916 100%)!important;}
+.theme-swatch{height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .1s;position:relative;overflow:hidden;}
+.theme-swatch.active{border-color:white;transform:scale(1.04);}
+.theme-swatch-label{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflow:hidden;color:var(--text1);}
 .no-crt::before{display:none!important;}.no-crt::after{display:none!important;}
@@ -248,8 +254,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <div>
         <div id="header-name" style="font-size:26px;font-weight:800;color:var(--text1);letter-spacing:-.3px;line-height:1.1;margin-bottom:6px;">PLAYER</div>
         <div style="display:flex;gap:7px;align-items:center;">
-          <div class="streak-badge" id="streak-badge">&#128293; 0 DÍAS</div>
-          <div class="closed-badge" id="closed-badge">&#10003; 0 MES</div>
+          <div class="streak-badge" id="streak-badge">&#128293; 0 DAYS</div>
+          <div class="closed-badge" id="closed-badge">&#10003; 0 / MO</div>
         </div>
       </div>
     </div>
@@ -341,8 +347,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;" id="cal-grid"></div>
     <!-- Legend -->
     <div style="display:flex;gap:14px;margin-top:10px;margin-bottom:4px;padding:0 2px;">
-      <div style="display:flex;align-items:center;gap:5px;"><div class="cal-dot cdot-red"></div><span style="font-size:11px;color:var(--text3);">Expirado</span></div>
-      <div style="display:flex;align-items:center;gap:5px;"><div class="cal-dot cdot-amber"></div><span style="font-size:11px;color:var(--text3);">≤7 días</span></div>
+      <div style="display:flex;align-items:center;gap:5px;"><div class="cal-dot cdot-red"></div><span style="font-size:11px;color:var(--text3);">Expired</span></div>
+      <div style="display:flex;align-items:center;gap:5px;"><div class="cal-dot cdot-amber"></div><span style="font-size:11px;color:var(--text3);">≤7 days</span></div>
       <div style="display:flex;align-items:center;gap:5px;"><div class="cal-dot cdot-blue"></div><span style="font-size:11px;color:var(--text3);">OK</span></div>
     </div>
     <!-- Day detail panel -->
@@ -362,25 +368,25 @@ select option{background:var(--bg1);}textarea{resize:none;}
 
   <div class="view" id="view-hours">
     <!-- ACTIVITY HEATMAP -->
-    <div class="sec-hd">ACTIVIDAD — ÚLTIMOS 3 MESES</div>
+    <div class="sec-hd">ACTIVITY — LAST 13 WEEKS</div>
     <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
       <div id="report-heatmap"></div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end;">
-        <span style="font-size:10px;color:var(--text3);">Menos</span>
+        <span style="font-size:10px;color:var(--text3);">Less</span>
         <div style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);"></div>
         <div style="width:10px;height:10px;border-radius:3px;background:rgba(59,130,246,.25);"></div>
         <div style="width:10px;height:10px;border-radius:3px;background:rgba(59,130,246,.55);"></div>
         <div style="width:10px;height:10px;border-radius:3px;background:var(--accent);box-shadow:0 0 6px rgba(59,130,246,.5);"></div>
-        <span style="font-size:10px;color:var(--text3);">Más</span>
+        <span style="font-size:10px;color:var(--text3);">More</span>
       </div>
     </div>
     <!-- WORKLOAD BY MONTH -->
-    <div class="sec-hd">CARGA — PRÓXIMOS 6 MESES</div>
+    <div class="sec-hd">WORKLOAD — NEXT 6 MONTHS</div>
     <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
       <div id="report-workload"></div>
     </div>
     <!-- PIPELINE BOTTLENECK -->
-    <div class="sec-hd">BOTTLENECK DEL PIPELINE</div>
+    <div class="sec-hd">PIPELINE BOTTLENECK</div>
     <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
       <div id="report-pipeline"></div>
     </div>
@@ -391,7 +397,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <button class="px-btn" onclick="exportData()" style="justify-content:center;">EXPORT JSON</button>
       <button class="px-btn muted" onclick="document.getElementById('import-file').click()" style="justify-content:center;">IMPORT JSON</button>
     </div>
-    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Google Drive sync activo cuando estás logueado. O usa EXPORT / IMPORT para backup manual.</div>
+    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Google Drive sync active when logged in. Use EXPORT / IMPORT for manual backup.</div>
   </div>
 </div>
 
@@ -521,16 +527,25 @@ select option{background:var(--bg1);}textarea{resize:none;}
       </div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">ACTIVIDAD</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">ACTIVITY</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#128293; RACHA ACTUAL</div><div style="font-size:22px;font-weight:800;color:var(--amber);" id="prof-streak">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#127942; MEJOR RACHA</div><div style="font-size:22px;font-weight:800;color:var(--accent);" id="prof-best">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#10003; CERRADOS MES</div><div style="font-size:22px;font-weight:800;color:var(--green);" id="prof-month">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL ACTIVOS</div><div style="font-size:22px;font-weight:800;color:var(--text2);" id="prof-done">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#128293; CURRENT STREAK</div><div style="font-size:22px;font-weight:800;color:var(--amber);" id="prof-streak">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#127942; BEST STREAK</div><div style="font-size:22px;font-weight:800;color:var(--accent);" id="prof-best">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#10003; CLOSED / MO</div><div style="font-size:22px;font-weight:800;color:var(--green);" id="prof-month">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL ACTIVE</div><div style="font-size:22px;font-weight:800;color:var(--text2);" id="prof-done">0</div></div>
       </div>
     </div>
     <div style="margin-bottom:14px;">
-      <label class="form-label">VISTA</label>
+      <label class="form-label">BACKGROUND THEME</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;">
+        <div class="theme-swatch active" id="tsw-default" onclick="setAppTheme('default',this)" style="background:linear-gradient(160deg,#0e0f11,#1c1d22);"><span class="theme-swatch-label">DEFAULT</span></div>
+        <div class="theme-swatch" id="tsw-midnight" onclick="setAppTheme('midnight',this)" style="background:linear-gradient(160deg,#0d0d14,#16163a);"><span class="theme-swatch-label">MIDNIGHT</span></div>
+        <div class="theme-swatch" id="tsw-ocean" onclick="setAppTheme('ocean',this)" style="background:linear-gradient(160deg,#080e18,#0d2545);"><span class="theme-swatch-label">OCEAN</span></div>
+        <div class="theme-swatch" id="tsw-forest" onclick="setAppTheme('forest',this)" style="background:linear-gradient(160deg,#080f0a,#0e2916);"><span class="theme-swatch-label">FOREST</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="form-label">VIEW</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
         <button id="view-phone-btn" class="px-btn sm" onclick="setViewMode('phone')">&#128241; PHONE</button>
         <button id="view-pc-btn" class="px-btn sm muted" onclick="setViewMode('pc')">&#128187; PC / TABLET</button>
@@ -554,8 +569,8 @@ const SLT={produccion:"IN PROGRESS",gestion:"ON HOLD",critico:"URGENT",listo:"RE
 const SB={produccion:"b-green",gestion:"b-amber",critico:"b-red",listo:"b-cyan",aplazado:"b-gray",finalizado:"b-gray"};
 const PO={critico:0,produccion:1,listo:2,gestion:3,aplazado:4};
 const UO={alta:0,media:1,baja:2};
-const MN=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
-const DN=["L","M","X","J","V","S","D"];
+const MN=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const DN=["M","T","W","T","F","S","S"];
 const DP=[
   {id:1779783806290,name:"Alpha Centauri - New sail",status:"produccion",urgency:"media",deadline:"2026-09-07",owner:"Pau",next:"Peter to measure aprox end of july",notes:"",history:[]},
   {id:1779783041729,name:"Brenta 24 - New A2 x 6",status:"gestion",urgency:"media",deadline:"2026-07-24",owner:"Peter",next:"Peter to push",notes:"",history:[]},
@@ -637,7 +652,7 @@ function updateStreakDisplay(){
     if(p.status==="finalizado"){const d=p.finishedAt?new Date(p.finishedAt):null;return d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
     return p.status==="listo";
   }).length;
-  const cb=document.getElementById("closed-badge");if(cb)cb.textContent="✓ "+monthClosed+" MES";
+  const cb=document.getElementById("closed-badge");if(cb)cb.textContent="✓ "+monthClosed+" / MO";
 }
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
 function calcHealth(){
@@ -714,9 +729,9 @@ function startECG(score){
   canvas.width=rect.width*dpr;canvas.height=120*dpr;
   const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=120;
   let color,speed,amplitude,frequency;
-  if(score>=75){color="#34d399";speed=2;amplitude=20;frequency=0.08;}
-  else if(score>=45){color="#fbbf24";speed=3;amplitude=22;frequency=0.12;}
-  else if(score>=20){color="#f87171";speed=4.5;amplitude=20;frequency=0.18;}
+  if(score>=75){color="#34d399";speed=2;amplitude=28;frequency=0.08;}
+  else if(score>=45){color="#fbbf24";speed=3;amplitude=30;frequency=0.12;}
+  else if(score>=20){color="#f87171";speed=4.5;amplitude=28;frequency=0.18;}
   else{color="#475569";speed=0;amplitude=0;frequency=0;}
   function drawGrid(){ctx.strokeStyle="rgba(59,130,246,0.08)";ctx.lineWidth=1;for(let x=0;x<W;x+=W/4){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=H/3){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.strokeStyle="rgba(59,130,246,0.15)";ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();}
   function ecgWave(x,t,amp,freq){const phase=x*freq+t;const base=Math.sin(phase);const qrs=Math.exp(-Math.pow((phase%(2*Math.PI)-Math.PI)*3,2))*amp*1.5;const p=Math.sin(phase*0.5)*amp*0.25;return base*amp*0.1+qrs+p;}
@@ -898,7 +913,7 @@ function renderCalMonthList(dlMap,now){
   Object.keys(dlMap).sort().forEach(ds=>{if(!ds.startsWith(prefix))return;dlMap[ds].forEach(p=>{const diff=Math.ceil((new Date(ds)-now)/86400000);entries.push({p,ds,diff});});});
   const isNow=new Date().getFullYear()===calYear&&new Date().getMonth()===calMonth;
   hd.textContent=(isNow?"THIS MONTH":MN[calMonth].toUpperCase())+" — DEADLINES ("+entries.length+")";
-  if(!entries.length){list.innerHTML=`<div style="font-size:13px;color:var(--text3);padding:14px 0;text-align:center;">No hay deadlines este mes</div>`;return;}
+  if(!entries.length){list.innerHTML=`<div style="font-size:13px;color:var(--text3);padding:14px 0;text-align:center;">No deadlines this month</div>`;return;}
   const sL={critico:"URGENT",produccion:"IN PROG",gestion:"ON HOLD",listo:"READY"};
   const sC={critico:"var(--red)",produccion:"var(--accent)",gestion:"var(--amber)",listo:"var(--green)"};
   list.innerHTML=entries.map(({p,ds,diff})=>{
@@ -922,7 +937,7 @@ function calClick(ds){
   const detail=document.getElementById("cal-detail");
   if(!projs.length){detail.style.display="none";return;}
   const now=new Date();const diff=Math.ceil((new Date(ds)-now)/86400000);
-  const dStr=diff<0?`Hace ${Math.abs(diff)} días`:diff===0?"Hoy":diff===1?"Mañana":`En ${diff} días`;
+  const dStr=diff<0?`${Math.abs(diff)}d ago`:diff===0?"Today":diff===1?"Tomorrow":`In ${diff}d`;
   const parts=ds.split("-");
   document.getElementById("cal-detail-date").textContent=parseInt(parts[2])+" "+MN[parseInt(parts[1])-1]+" "+parts[0]+" · "+dStr;
   const sL={critico:"URGENT",produccion:"IN PROG",gestion:"ON HOLD",listo:"READY"};
@@ -955,7 +970,7 @@ function renderHeatmap(){
   start.setDate(start.getDate()-((WEEKS*7)-1));
   /* align to Monday */
   const dow=(start.getDay()+6)%7;start.setDate(start.getDate()-dow);
-  const dayLabels=["L","","X","","V","","D"];
+  const dayLabels=["M","","W","","F","","S"];
   /* month labels: collect unique months and their column positions */
   const monthCols={};
   let html='<div style="display:flex;gap:3px;">';
@@ -966,7 +981,7 @@ function renderHeatmap(){
   for(let w=0;w<WEEKS;w++){
     const colDate=new Date(start);colDate.setDate(colDate.getDate()+w*7);
     const mKey=colDate.getMonth()+"-"+colDate.getFullYear();
-    if(!monthCols[mKey])monthCols[mKey]={col:w,label:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][colDate.getMonth()]};
+    if(!monthCols[mKey])monthCols[mKey]={col:w,label:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][colDate.getMonth()]};
     html+='<div style="display:flex;flex-direction:column;gap:3px;">';
     for(let d=0;d<7;d++){
       const day=new Date(start);day.setDate(day.getDate()+w*7+d);
@@ -995,9 +1010,9 @@ function renderHeatmap(){
   const streak=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
   const total=[...actDates].filter(ds=>ds>=start.toISOString().split("T")[0]).length;
   html+=`<div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">RACHA ACTUAL</div><div style="font-size:18px;font-weight:800;color:var(--amber);">🔥 ${streak} días</div></div>
-    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">MEJOR RACHA</div><div style="font-size:18px;font-weight:800;color:var(--accent);">${gdata.bestStreak||streak} días</div></div>
-    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">DÍAS ACTIVOS</div><div style="font-size:18px;font-weight:800;color:var(--text2);">${total}/91</div></div>
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">CURRENT STREAK</div><div style="font-size:18px;font-weight:800;color:var(--amber);">🔥 ${streak} days</div></div>
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">BEST STREAK</div><div style="font-size:18px;font-weight:800;color:var(--accent);">${gdata.bestStreak||streak} days</div></div>
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">ACTIVE DAYS</div><div style="font-size:18px;font-weight:800;color:var(--text2);">${total}/91</div></div>
   </div>`;
   el.innerHTML=html;
 }
@@ -1007,7 +1022,7 @@ function renderWorkload(){
   const months=[];
   for(let i=0;i<6;i++){
     const d=new Date(now.getFullYear(),now.getMonth()+i,1);
-    months.push({year:d.getFullYear(),month:d.getMonth(),label:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][d.getMonth()]});
+    months.push({year:d.getFullYear(),month:d.getMonth(),label:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]});
   }
   const counts=months.map(m=>{
     return projects.filter(p=>{
@@ -1040,7 +1055,7 @@ function renderWorkload(){
       </div>
     </div>`;
   }).join("");
-  if(!counts.some(c=>c>0))el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No hay deadlines en los próximos 6 meses</div>`;
+  if(!counts.some(c=>c>0))el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No deadlines in the next 6 months</div>`;
 }
 function renderPipelineBottleneck(){
   const el=document.getElementById("report-pipeline");if(!el)return;
@@ -1054,7 +1069,7 @@ function renderPipelineBottleneck(){
   });
   const noPipeline=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado"&&!p.pipeline).length;
   const maxStuck=Math.max(...stuck,1);
-  if(total===0&&noPipeline===0){el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No hay proyectos activos con pipeline</div>`;return;}
+  if(total===0&&noPipeline===0){el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No active projects with pipeline</div>`;return;}
   el.innerHTML=STEPS.map((step,i)=>{
     const pct=Math.round((stuck[i]/maxStuck)*100);
     const isBottleneck=stuck[i]===Math.max(...stuck)&&stuck[i]>0;
@@ -1064,7 +1079,7 @@ function renderPipelineBottleneck(){
         <div style="display:flex;align-items:center;gap:6px;">
           <span style="font-size:12px;color:var(--text3);">${i+1}.</span>
           <span style="font-size:12px;font-weight:${isBottleneck?700:500};color:${isBottleneck?"var(--text1)":"var(--text2)"};">${step}</span>
-          ${isBottleneck&&stuck[i]>0?`<span style="font-size:9px;font-weight:700;color:var(--red);background:rgba(248,113,113,.12);border-radius:8px;padding:1px 7px;">CUELLO DE BOTELLA</span>`:""}
+          ${isBottleneck&&stuck[i]>0?`<span style="font-size:9px;font-weight:700;color:var(--red);background:rgba(248,113,113,.12);border-radius:8px;padding:1px 7px;">BOTTLENECK</span>`:""}
         </div>
         <span style="font-size:13px;font-weight:700;color:${col};">${stuck[i]}</span>
       </div>
@@ -1072,7 +1087,7 @@ function renderPipelineBottleneck(){
         <div style="height:100%;width:${stuck[i]>0?Math.max(pct,4):0}%;background:${col};border-radius:4px;transition:width .6s ease;"></div>
       </div>
     </div>`;
-  }).join("")+(noPipeline>0?`<div style="margin-top:8px;font-size:12px;color:var(--text3);">+ ${noPipeline} proyectos sin pipeline asignado</div>`:"");
+  }).join("")+(noPipeline>0?`<div style="margin-top:8px;font-size:12px;color:var(--text3);">+ ${noPipeline} projects with no pipeline</div>`:"");
 }
 function exportData(){const d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="sail-mgr-"+new Date().toISOString().split("T")[0]+".json";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showSaved();}
 function shareViaWhatsApp(){var d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};var jsonStr=JSON.stringify(d,null,2);if(navigator.share){navigator.share({title:"MANAGER ASSIST Backup",text:"Sail Manager backup "+new Date().toLocaleDateString("es-ES")}).catch(()=>{});}else{navigator.clipboard.writeText(jsonStr).then(()=>showToast("JSON COPIED TO CLIPBOARD"));}}
@@ -1110,19 +1125,21 @@ function openProfile(){
   document.getElementById("prof-done").textContent=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado").length;
   document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#3b82f6"));s.style.borderColor=s.dataset.color===(prof.theme||"#3b82f6")?"white":"transparent";});
   var crtOn=prof.crt!==false;document.getElementById("crt-on").className="px-btn sm"+(crtOn?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(crtOn?" muted":"");
-  var vm=prof.viewMode||"phone";applyViewMode(vm);
+  var vm=prof.viewMode||"phone";applyViewMode(vm);var at=prof.appTheme||"default";document.querySelectorAll(".theme-swatch").forEach(s=>s.classList.remove("active"));var activeTswEl=document.getElementById("tsw-"+at);if(activeTswEl)activeTswEl.classList.add("active");
   openModal("profile");
 }
 function cycleAvatar(){customAvatarData=null;avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
 function setTheme(color,dark,el){document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.remove("active");s.style.borderColor="transparent";});el.classList.add("active");el.style.borderColor="white";applyTheme(color,dark);}
+function setAppTheme(name,el){document.querySelectorAll(".theme-swatch").forEach(s=>s.classList.remove("active"));if(el)el.classList.add("active");applyAppTheme(name);}
+function applyAppTheme(name){document.body.classList.remove("theme-midnight","theme-ocean","theme-forest");if(name&&name!=="default")document.body.classList.add("theme-"+name);}
 function applyTheme(color,dark){var root=document.documentElement;root.style.setProperty("--accent",color);root.style.setProperty("--accent-dark",dark);root.style.setProperty("--accent-glow","rgba("+hexToRgb(color)+",.18)");}
 function hexToRgb(hex){return parseInt(hex.slice(1,3),16)+","+parseInt(hex.slice(3,5),16)+","+parseInt(hex.slice(5,7),16);}
 function setCRT(on){document.getElementById("crt-on").className="px-btn sm"+(on?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(on?" muted":"");if(on)document.body.classList.remove("no-crt");else document.body.classList.add("no-crt");}
 function saveProfile(){
   var name=document.getElementById("profile-name").value.trim()||"PLAYER";var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
-  var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
+  var activeTsw=document.querySelector(".theme-swatch.active");var appTheme=activeTsw?activeTsw.id.replace("tsw-",""):"default";var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt,appTheme};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
 }
-function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);if(prof.viewMode)applyViewMode(prof.viewMode);}
+function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);if(prof.viewMode)applyViewMode(prof.viewMode);if(prof.appTheme)applyAppTheme(prof.appTheme);}
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
 function applyViewMode(mode){
   document.body.classList.toggle("pc-mode",mode==="pc");
