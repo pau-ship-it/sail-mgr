@@ -262,8 +262,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
           <div id="header-role" style="font-size:11px;color:var(--text3);font-weight:400;">—</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;margin-top:3px;">
-          <div class="streak-badge" id="streak-badge">&#128293; 0 DAYS</div>
-          <div class="closed-badge" id="closed-badge">&#10003; 0 / MO</div>
+          <div class="streak-badge" id="streak-badge">0 DAYS</div>
+          <div class="closed-badge" id="closed-badge">0 / MO</div>
         </div>
       </div>
     </div>
@@ -523,64 +523,85 @@ select option{background:var(--bg1);}textarea{resize:none;}
 <!-- MODAL PROFILE -->
 <div class="modal-overlay" id="modal-profile">
   <div class="modal">
-    <div class="modal-title">Player Profile</div>
-    <div style="text-align:center;margin-bottom:18px;">
-      <div id="profile-avatar" style="width:100px;height:100px;margin:0 auto 8px;background:var(--bg2);border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;cursor:pointer;overflow:hidden;" onclick="cycleAvatar()">&#9760;</div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:6px;">
-        <div style="font-size:12px;color:var(--text3);line-height:28px;">Tap to change</div>
-        <label style="cursor:pointer;"><input type="file" id="avatar-photo-input" accept="image/*" style="display:none;" onchange="loadAvatarPhoto(event)"/><span class="px-btn sm">Import Photo</span></label>
+    <div class="modal-title">Settings</div>
+
+    <!-- IDENTITY -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;">
+      <div id="profile-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;cursor:pointer;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,.1);" onclick="cycleAvatar()">P</div>
+      <div style="flex:1;min-width:0;">
+        <input type="text" id="profile-name" placeholder="Your name..." maxlength="20" style="margin-bottom:6px;font-weight:600;"/>
+        <input type="text" id="profile-role" placeholder="Role / Position..." maxlength="40" style="font-size:12px;color:var(--text2);"/>
+      </div>
+      <label style="cursor:pointer;flex-shrink:0;"><input type="file" id="avatar-photo-input" accept="image/*" style="display:none;" onchange="loadAvatarPhoto(event)"/><span class="px-btn sm muted" style="font-size:10px;">PHOTO</span></label>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Appearance</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">ACCENT</div>
+        <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:5px;" id="theme-colors">
+          <div class="color-swatch active" data-color="#3b82f6" data-dark="#1d4ed8" style="background:#3b82f6;height:22px;border-radius:5px;border:2px solid white;cursor:pointer;" onclick="setTheme('#3b82f6','#1d4ed8',this)" title="Blue"></div>
+          <div class="color-swatch" data-color="#6366f1" data-dark="#3730a3" style="background:#6366f1;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#6366f1','#3730a3',this)" title="Indigo"></div>
+          <div class="color-swatch" data-color="#8b5cf6" data-dark="#5b21b6" style="background:#8b5cf6;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#8b5cf6','#5b21b6',this)" title="Violet"></div>
+          <div class="color-swatch" data-color="#a78bfa" data-dark="#4c1d95" style="background:#a78bfa;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#a78bfa','#4c1d95',this)" title="Purple"></div>
+          <div class="color-swatch" data-color="#ec4899" data-dark="#9d174d" style="background:#ec4899;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#ec4899','#9d174d',this)" title="Pink"></div>
+          <div class="color-swatch" data-color="#06b6d4" data-dark="#0e7490" style="background:#06b6d4;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#06b6d4','#0e7490',this)" title="Cyan"></div>
+          <div class="color-swatch" data-color="#14b8a6" data-dark="#0f766e" style="background:#14b8a6;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#14b8a6','#0f766e',this)" title="Teal"></div>
+          <div class="color-swatch" data-color="#34d399" data-dark="#065f46" style="background:#34d399;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#34d399','#065f46',this)" title="Emerald"></div>
+          <div class="color-swatch" data-color="#f97316" data-dark="#9a3412" style="background:#f97316;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#f97316','#9a3412',this)" title="Orange"></div>
+          <div class="color-swatch" data-color="#fbbf24" data-dark="#78350f" style="background:#fbbf24;height:22px;border-radius:5px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#fbbf24','#78350f',this)" title="Amber"></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">BACKGROUND</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <div class="theme-swatch active" id="tsw-default" onclick="setAppTheme('default',this)" style="background:linear-gradient(160deg,#0e0f11,#1c1d22);"><span class="theme-swatch-label">DEFAULT</span></div>
+          <div class="theme-swatch" id="tsw-midnight" onclick="setAppTheme('midnight',this)" style="background:linear-gradient(160deg,#0d0d14,#16163a);"><span class="theme-swatch-label">MIDNIGHT</span></div>
+          <div class="theme-swatch" id="tsw-ocean" onclick="setAppTheme('ocean',this)" style="background:linear-gradient(160deg,#080e18,#0d2545);"><span class="theme-swatch-label">OCEAN</span></div>
+          <div class="theme-swatch" id="tsw-forest" onclick="setAppTheme('forest',this)" style="background:linear-gradient(160deg,#080f0a,#0e2916);"><span class="theme-swatch-label">FOREST</span></div>
+          <div class="theme-swatch" id="tsw-ember" onclick="setAppTheme('ember',this)" style="background:linear-gradient(160deg,#110a08,#3d1a06);"><span class="theme-swatch-label">EMBER</span></div>
+          <div class="theme-swatch" id="tsw-dusk" onclick="setAppTheme('dusk',this)" style="background:linear-gradient(160deg,#100d14,#2e1040);"><span class="theme-swatch-label">DUSK</span></div>
+          <div class="theme-swatch" id="tsw-aurora" onclick="setAppTheme('aurora',this)" style="background:linear-gradient(160deg,#080f12,#072530);"><span class="theme-swatch-label">AURORA</span></div>
+          <div class="theme-swatch" id="tsw-rose" onclick="setAppTheme('rose',this)" style="background:linear-gradient(160deg,#120a0d,#38101e);"><span class="theme-swatch-label">ROSE</span></div>
+          <div class="theme-swatch" id="tsw-slate" onclick="setAppTheme('slate',this)" style="background:linear-gradient(160deg,#0a0c10,#141e33);"><span class="theme-swatch-label">SLATE</span></div>
+        </div>
       </div>
     </div>
-    <div style="margin-bottom:10px;"><label class="form-label">NAME</label><input type="text" id="profile-name" placeholder="Your name..." maxlength="20"/></div>
-    <div style="margin-bottom:10px;"><label class="form-label">ROLE / POSITION</label><input type="text" id="profile-role" placeholder="e.g. Manager of Department..." maxlength="40"/></div>
-    <div style="margin-bottom:10px;">
-      <label class="form-label">ACCENT COLOR</label>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:4px;" id="theme-colors">
-        <div class="color-swatch active" data-color="#3b82f6" data-dark="#1d4ed8" style="background:#3b82f6;height:28px;border-radius:7px;border:2px solid white;cursor:pointer;" onclick="setTheme('#3b82f6','#1d4ed8',this)" title="Blue"></div>
-        <div class="color-swatch" data-color="#6366f1" data-dark="#3730a3" style="background:#6366f1;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#6366f1','#3730a3',this)" title="Indigo · Midnight"></div>
-        <div class="color-swatch" data-color="#8b5cf6" data-dark="#5b21b6" style="background:#8b5cf6;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#8b5cf6','#5b21b6',this)" title="Violet · Dusk"></div>
-        <div class="color-swatch" data-color="#a78bfa" data-dark="#4c1d95" style="background:#a78bfa;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#a78bfa','#4c1d95',this)" title="Purple"></div>
-        <div class="color-swatch" data-color="#ec4899" data-dark="#9d174d" style="background:#ec4899;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#ec4899','#9d174d',this)" title="Pink · Rose"></div>
-        <div class="color-swatch" data-color="#06b6d4" data-dark="#0e7490" style="background:#06b6d4;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#06b6d4','#0e7490',this)" title="Cyan · Ocean"></div>
-        <div class="color-swatch" data-color="#14b8a6" data-dark="#0f766e" style="background:#14b8a6;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#14b8a6','#0f766e',this)" title="Teal · Aurora"></div>
-        <div class="color-swatch" data-color="#34d399" data-dark="#065f46" style="background:#34d399;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#34d399','#065f46',this)" title="Emerald · Forest"></div>
-        <div class="color-swatch" data-color="#f97316" data-dark="#9a3412" style="background:#f97316;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#f97316','#9a3412',this)" title="Orange · Ember"></div>
-        <div class="color-swatch" data-color="#fbbf24" data-dark="#78350f" style="background:#fbbf24;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#fbbf24','#78350f',this)" title="Amber"></div>
+
+    <!-- ACTIVITY STATS -->
+    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Activity</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Streak</div>
+        <div style="font-size:20px;font-weight:800;color:var(--amber);" id="prof-streak">0</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Best</div>
+        <div style="font-size:20px;font-weight:800;color:var(--accent);" id="prof-best">0</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Closed</div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);" id="prof-month">0</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Active</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text2);" id="prof-done">0</div>
       </div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">ACTIVITY</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#128293; CURRENT STREAK</div><div style="font-size:22px;font-weight:800;color:var(--amber);" id="prof-streak">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#127942; BEST STREAK</div><div style="font-size:22px;font-weight:800;color:var(--accent);" id="prof-best">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#10003; CLOSED / MO</div><div style="font-size:22px;font-weight:800;color:var(--green);" id="prof-month">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL ACTIVE</div><div style="font-size:22px;font-weight:800;color:var(--text2);" id="prof-done">0</div></div>
+
+    <!-- DISPLAY -->
+    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Display</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button id="view-phone-btn" class="px-btn sm" onclick="setViewMode('phone')">PHONE</button>
+        <button id="view-pc-btn" class="px-btn sm muted" onclick="setViewMode('pc')">PC / TABLET</button>
       </div>
     </div>
-    <div style="margin-bottom:14px;">
-      <label class="form-label">BACKGROUND THEME</label>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;">
-        <div class="theme-swatch active" id="tsw-default" onclick="setAppTheme('default',this)" style="background:linear-gradient(160deg,#0e0f11,#1c1d22);"><span class="theme-swatch-label">DEFAULT</span></div>
-        <div class="theme-swatch" id="tsw-midnight" onclick="setAppTheme('midnight',this)" style="background:linear-gradient(160deg,#0d0d14,#16163a);"><span class="theme-swatch-label">MIDNIGHT</span></div>
-        <div class="theme-swatch" id="tsw-ocean" onclick="setAppTheme('ocean',this)" style="background:linear-gradient(160deg,#080e18,#0d2545);"><span class="theme-swatch-label">OCEAN</span></div>
-        <div class="theme-swatch" id="tsw-forest" onclick="setAppTheme('forest',this)" style="background:linear-gradient(160deg,#080f0a,#0e2916);"><span class="theme-swatch-label">FOREST</span></div>
-        <div class="theme-swatch" id="tsw-ember" onclick="setAppTheme('ember',this)" style="background:linear-gradient(160deg,#110a08,#3d1a06);"><span class="theme-swatch-label">EMBER</span></div>
-        <div class="theme-swatch" id="tsw-dusk" onclick="setAppTheme('dusk',this)" style="background:linear-gradient(160deg,#100d14,#2e1040);"><span class="theme-swatch-label">DUSK</span></div>
-        <div class="theme-swatch" id="tsw-aurora" onclick="setAppTheme('aurora',this)" style="background:linear-gradient(160deg,#080f12,#072530);"><span class="theme-swatch-label">AURORA</span></div>
-        <div class="theme-swatch" id="tsw-rose" onclick="setAppTheme('rose',this)" style="background:linear-gradient(160deg,#120a0d,#38101e);"><span class="theme-swatch-label">ROSE</span></div>
-        <div class="theme-swatch" id="tsw-slate" onclick="setAppTheme('slate',this)" style="background:linear-gradient(160deg,#0a0c10,#141e33);"><span class="theme-swatch-label">SLATE</span></div>
-      </div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <label class="form-label">VIEW</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
-        <button id="view-phone-btn" class="px-btn sm" onclick="setViewMode('phone')">&#128241; PHONE</button>
-        <button id="view-pc-btn" class="px-btn sm muted" onclick="setViewMode('pc')">&#128187; PC / TABLET</button>
-      </div>
-    </div>
+
     <div class="btn-row">
       <button class="px-btn muted" onclick="closeModal('profile')">CANCEL</button>
-      <button class="px-btn" onclick="saveProfile()">SAVE PROFILE</button>
+      <button class="px-btn" onclick="saveProfile()">SAVE</button>
     </div>
   </div>
 </div>
@@ -673,7 +694,7 @@ function recordActivity(){
 }
 function updateStreakDisplay(){
   const s=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
-  const sb=document.getElementById("streak-badge");if(sb)sb.textContent="🔥 "+s+" DÍAS";
+  const sb=document.getElementById("streak-badge");if(sb)sb.textContent=s+" DAYS";
   const now=new Date();
   const monthClosed=projects.filter(p=>{
     if(p.status==="finalizado"){const d=p.finishedAt?new Date(p.finishedAt):null;return d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
@@ -1190,7 +1211,7 @@ function loadAvatarPhoto(event){
 function openProfile(){
   var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#3b82f6",dark:"#1d4ed8",crt:false});avatarIdx=prof.avatar||0;customAvatarData=prof.customAvatar||null;
   var el=document.getElementById("profile-avatar");
-  if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';}else{el.innerHTML=AVATARS[avatarIdx];}
+  const n2=prof.name||"P";if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';}else{el.textContent=n2.charAt(0).toUpperCase();}
   document.getElementById("profile-name").value=prof.name||"";document.getElementById("profile-role").value=prof.role||"";
   const s=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
   document.getElementById("prof-streak").textContent=s;
@@ -1203,7 +1224,7 @@ function openProfile(){
   var vm=prof.viewMode||"phone";applyViewMode(vm);var at=prof.appTheme||"default";document.querySelectorAll(".theme-swatch").forEach(s=>s.classList.remove("active"));var activeTswEl=document.getElementById("tsw-"+at);if(activeTswEl)activeTswEl.classList.add("active");
   openModal("profile");
 }
-function cycleAvatar(){customAvatarData=null;avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
+function cycleAvatar(){customAvatarData=null;const name=document.getElementById("profile-name").value||"P";document.getElementById("profile-avatar").textContent=name.charAt(0).toUpperCase();}
 function setTheme(color,dark,el){document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.remove("active");s.style.borderColor="transparent";});el.classList.add("active");el.style.borderColor="white";applyTheme(color,dark);}
 function setAppTheme(name,el){document.querySelectorAll(".theme-swatch").forEach(s=>s.classList.remove("active"));if(el)el.classList.add("active");applyAppTheme(name);}
 function applyAppTheme(name){document.body.classList.remove("theme-midnight","theme-ocean","theme-forest","theme-ember","theme-dusk","theme-aurora","theme-rose","theme-slate");if(name&&name!=="default")document.body.classList.add("theme-"+name);}
