@@ -36,6 +36,23 @@ html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflo
 .streak-header{background:linear-gradient(135deg,#0d1b2e 0%,#0f2244 100%);border-bottom:1px solid var(--border2);padding:14px 16px 12px;flex-shrink:0;}
 .streak-badge{font-size:12px;font-weight:700;color:var(--amber);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:20px;padding:3px 11px;}
 .closed-badge{font-size:12px;font-weight:700;color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:3px 11px;}
+/* PC MODE */
+body.pc-mode .app{max-width:960px;flex-direction:row;height:100vh;}
+body.pc-mode .bottom-nav{position:relative;left:auto;transform:none;width:80px;max-width:80px;height:100vh;flex-direction:column;border-top:none;border-right:1px solid var(--border2);flex-shrink:0;overflow:hidden;padding:12px 0;}
+body.pc-mode .nav-tab{flex:0;padding:16px 0;font-size:9px;gap:6px;}
+body.pc-mode .nav-dot{top:8px;right:8px;}
+body.pc-mode .app>div:not(.bottom-nav){flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+body.pc-mode .content{padding:20px 24px;padding-bottom:20px;}
+body.pc-mode .metrics{grid-template-columns:repeat(4,1fr);}
+body.pc-mode #view-projects .px-card{display:inline-block;width:calc(50% - 5px);vertical-align:top;}
+body.pc-mode #proj-list{display:flex;flex-wrap:wrap;gap:10px;}
+body.pc-mode #proj-list .px-card{flex:1 1 calc(50% - 5px);margin-bottom:0;}
+body.pc-mode #view-daily{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;}
+body.pc-mode #view-daily .metrics{grid-column:1/-1;}
+body.pc-mode #view-daily .sec-hd:nth-of-type(1){grid-column:1;}
+body.pc-mode #daily-alerts{grid-column:1;}
+body.pc-mode #view-daily>div:has(#todo-list){grid-column:2;grid-row:2/5;}
+body.pc-mode .cal-day{min-height:80px;}
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg1);border-bottom:1px solid var(--border2);flex-shrink:0;}
 .topbar-title{font-size:13px;font-weight:700;color:var(--text1);letter-spacing:.5px;}
@@ -510,6 +527,13 @@ select option{background:var(--bg1);}textarea{resize:none;}
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#127942; MEJOR RACHA</div><div style="font-size:22px;font-weight:800;color:var(--accent);" id="prof-best">0</div></div>
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#10003; CERRADOS MES</div><div style="font-size:22px;font-weight:800;color:var(--green);" id="prof-month">0</div></div>
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL ACTIVOS</div><div style="font-size:22px;font-weight:800;color:var(--text2);" id="prof-done">0</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label class="form-label">VISTA</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+        <button id="view-phone-btn" class="px-btn sm" onclick="setViewMode('phone')">&#128241; PHONE</button>
+        <button id="view-pc-btn" class="px-btn sm muted" onclick="setViewMode('pc')">&#128187; PC / TABLET</button>
       </div>
     </div>
     <div class="btn-row">
@@ -1086,6 +1110,7 @@ function openProfile(){
   document.getElementById("prof-done").textContent=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado").length;
   document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#3b82f6"));s.style.borderColor=s.dataset.color===(prof.theme||"#3b82f6")?"white":"transparent";});
   var crtOn=prof.crt!==false;document.getElementById("crt-on").className="px-btn sm"+(crtOn?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(crtOn?" muted":"");
+  var vm=prof.viewMode||"phone";applyViewMode(vm);
   openModal("profile");
 }
 function cycleAvatar(){customAvatarData=null;avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
@@ -1097,8 +1122,21 @@ function saveProfile(){
   var name=document.getElementById("profile-name").value.trim()||"PLAYER";var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
   var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
 }
-function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);}
+function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);if(prof.viewMode)applyViewMode(prof.viewMode);}
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
+function applyViewMode(mode){
+  document.body.classList.toggle("pc-mode",mode==="pc");
+  const ph=document.getElementById("view-phone-btn"),pc=document.getElementById("view-pc-btn");
+  if(ph)ph.className="px-btn sm"+(mode==="phone"?"":" muted");
+  if(pc)pc.className="px-btn sm"+(mode==="pc"?"":" muted");
+  const bn=document.querySelector(".bottom-nav");
+  if(bn)bn.style.maxWidth=mode==="pc"?"80px":"480px";
+}
+function setViewMode(mode){
+  applyViewMode(mode);
+  var prof=retrieve("sm-profile",{});prof.viewMode=mode;store("sm-profile",prof);
+  showToast(mode==="pc"?"Vista PC activada 💻":"Vista Phone activada 📱");
+}
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
 window.persist=persist;window.renderDaily=renderDaily;window.updateStreakDisplay=updateStreakDisplay;window.applyProfile=applyProfile;
