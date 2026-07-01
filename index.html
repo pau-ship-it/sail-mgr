@@ -714,18 +714,18 @@ function startECG(score){
   canvas.width=rect.width*dpr;canvas.height=120*dpr;
   const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=120;
   let color,speed,amplitude,frequency;
-  if(score>=75){color="#34d399";speed=2;amplitude=32;frequency=0.08;}
-  else if(score>=45){color="#fbbf24";speed=3;amplitude=38;frequency=0.12;}
-  else if(score>=20){color="#f87171";speed=4.5;amplitude=36;frequency=0.18;}
+  if(score>=75){color="#34d399";speed=2;amplitude=20;frequency=0.08;}
+  else if(score>=45){color="#fbbf24";speed=3;amplitude=22;frequency=0.12;}
+  else if(score>=20){color="#f87171";speed=4.5;amplitude=20;frequency=0.18;}
   else{color="#475569";speed=0;amplitude=0;frequency=0;}
   function drawGrid(){ctx.strokeStyle="rgba(59,130,246,0.08)";ctx.lineWidth=1;for(let x=0;x<W;x+=W/4){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=H/3){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.strokeStyle="rgba(59,130,246,0.15)";ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();}
-  function ecgWave(x,t,amp,freq){const phase=x*freq+t;const base=Math.sin(phase);const qrs=Math.exp(-Math.pow((phase%(2*Math.PI)-Math.PI)*3,2))*amp*2.2;const p=Math.sin(phase*0.5)*amp*0.3;return base*amp*0.15+qrs+p;}
+  function ecgWave(x,t,amp,freq){const phase=x*freq+t;const base=Math.sin(phase);const qrs=Math.exp(-Math.pow((phase%(2*Math.PI)-Math.PI)*3,2))*amp*1.5;const p=Math.sin(phase*0.5)*amp*0.25;return base*amp*0.1+qrs+p;}
   function flatlineWave(x,t){const blipPos=(t*20)%W;const dist=Math.abs(x-blipPos);if(dist<8)return Math.exp(-dist*0.8)*12*(dist<4?1:-1);return 0;}
   let t=0;if(ecgAnim)cancelAnimationFrame(ecgAnim);
   function frame(){
     ctx.clearRect(0,0,W,H);drawGrid();ctx.shadowBlur=score<20?0:8;ctx.shadowColor=color;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin="round";ctx.lineCap="round";ctx.beginPath();
-    for(let x=0;x<W;x++){const raw=score<20?flatlineWave(x,t):ecgWave(x,t,amplitude,frequency);const y=Math.max(3,Math.min(H-3,H/2-raw));if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
-    if(score>=20){const dotX=(t*speed*60)%W;const dotY=Math.max(3,Math.min(H-3,H/2-ecgWave(dotX,t,amplitude,frequency)));ctx.beginPath();ctx.arc(dotX,dotY,3,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowBlur=12;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;}
+    for(let x=0;x<W;x++){const raw=score<20?flatlineWave(x,t):ecgWave(x,t,amplitude,frequency);const y=Math.max(8,Math.min(H-8,H/2-raw));if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+    if(score>=20){const dotX=(t*speed*60)%W;const dotY=Math.max(8,Math.min(H-8,H/2-ecgWave(dotX,t,amplitude,frequency)));ctx.beginPath();ctx.arc(dotX,dotY,3,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowBlur=12;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;}
     t+=0.016;ecgAnim=requestAnimationFrame(frame);
   }frame();
 }
