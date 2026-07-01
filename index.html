@@ -468,8 +468,16 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <div style="margin-bottom:10px;"><label class="form-label">NOTES</label><textarea id="pj-notes" style="height:48px;"></textarea></div>
     <div id="pipeline-wrap" style="display:none;margin-bottom:10px;">
       <div class="pipeline-wrap">
-        <div class="pipeline-title">&#9658; PROJECT PIPELINE</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="pipeline-title" style="margin-bottom:0;">&#9658; PROJECT PIPELINE</div>
+          <button class="px-btn sm muted" onclick="togglePipelineEdit()" id="pipe-edit-btn" style="font-size:10px;padding:3px 10px;">&#9998; EDIT STEPS</button>
+        </div>
         <div id="pipeline-items"></div>
+        <div id="pipeline-edit-area" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div id="pipeline-step-inputs"></div>
+          <button class="px-btn sm" onclick="addPipelineStep()" style="width:100%;justify-content:center;margin-top:6px;">+ ADD STEP</button>
+          <button class="px-btn sm muted" onclick="resetPipelineSteps()" style="width:100%;justify-content:center;margin-top:4px;font-size:10px;">&#8635; RESET TO DEFAULT</button>
+        </div>
         <div class="pipeline-bar-wrap"><div class="pipeline-bar" id="pipeline-bar" style="width:0%"></div></div>
         <div class="pipeline-pct" id="pipeline-pct">0 / 6 COMPLETE</div>
       </div>
@@ -527,12 +535,17 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <div style="margin-bottom:10px;"><label class="form-label">ROLE / POSITION</label><input type="text" id="profile-role" placeholder="e.g. Manager of Department..." maxlength="40"/></div>
     <div style="margin-bottom:10px;">
       <label class="form-label">ACCENT COLOR</label>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px;" id="theme-colors">
-        <div class="color-swatch active" data-color="#3b82f6" data-dark="#1d4ed8" style="background:#3b82f6;height:32px;border-radius:8px;border:2px solid white;cursor:pointer;" onclick="setTheme('#3b82f6','#1d4ed8',this)"></div>
-        <div class="color-swatch" data-color="#34d399" data-dark="#065f46" style="background:#34d399;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#34d399','#065f46',this)"></div>
-        <div class="color-swatch" data-color="#a78bfa" data-dark="#4c1d95" style="background:#a78bfa;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#a78bfa','#4c1d95',this)"></div>
-        <div class="color-swatch" data-color="#f87171" data-dark="#7f1d1d" style="background:#f87171;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#f87171','#7f1d1d',this)"></div>
-        <div class="color-swatch" data-color="#fbbf24" data-dark="#78350f" style="background:#fbbf24;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#fbbf24','#78350f',this)"></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:4px;" id="theme-colors">
+        <div class="color-swatch active" data-color="#3b82f6" data-dark="#1d4ed8" style="background:#3b82f6;height:28px;border-radius:7px;border:2px solid white;cursor:pointer;" onclick="setTheme('#3b82f6','#1d4ed8',this)" title="Blue"></div>
+        <div class="color-swatch" data-color="#6366f1" data-dark="#3730a3" style="background:#6366f1;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#6366f1','#3730a3',this)" title="Indigo · Midnight"></div>
+        <div class="color-swatch" data-color="#8b5cf6" data-dark="#5b21b6" style="background:#8b5cf6;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#8b5cf6','#5b21b6',this)" title="Violet · Dusk"></div>
+        <div class="color-swatch" data-color="#a78bfa" data-dark="#4c1d95" style="background:#a78bfa;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#a78bfa','#4c1d95',this)" title="Purple"></div>
+        <div class="color-swatch" data-color="#ec4899" data-dark="#9d174d" style="background:#ec4899;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#ec4899','#9d174d',this)" title="Pink · Rose"></div>
+        <div class="color-swatch" data-color="#06b6d4" data-dark="#0e7490" style="background:#06b6d4;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#06b6d4','#0e7490',this)" title="Cyan · Ocean"></div>
+        <div class="color-swatch" data-color="#14b8a6" data-dark="#0f766e" style="background:#14b8a6;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#14b8a6','#0f766e',this)" title="Teal · Aurora"></div>
+        <div class="color-swatch" data-color="#34d399" data-dark="#065f46" style="background:#34d399;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#34d399','#065f46',this)" title="Emerald · Forest"></div>
+        <div class="color-swatch" data-color="#f97316" data-dark="#9a3412" style="background:#f97316;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#f97316','#9a3412',this)" title="Orange · Ember"></div>
+        <div class="color-swatch" data-color="#fbbf24" data-dark="#78350f" style="background:#fbbf24;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;" onclick="setTheme('#fbbf24','#78350f',this)" title="Amber"></div>
       </div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:14px;">
@@ -722,9 +735,13 @@ function renderHealth(){
   document.getElementById("health-recs").innerHTML=recList.map(r=>`<div style="background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14px;color:var(--text2);line-height:1.5;">${r}</div>`).join("");
 }
 const PIPELINE_STEPS=["Quoted","Order Done","Design Accepted","Production Sheet","Material Ordered","Material in Loft"];
+function getPipelineSteps(p){return(p&&p.pipelineSteps&&p.pipelineSteps.length)?p.pipelineSteps:PIPELINE_STEPS;}
 function renderPipeline(p){
   if(!p.pipeline)p.pipeline={};
-  document.getElementById("pipeline-items").innerHTML=PIPELINE_STEPS.map((step,i)=>{const done=p.pipeline[i]||false;return `<div class="pipeline-item" onclick="togglePipelineStep(${i})"><div class="pipeline-check ${done?"done":""}">${done?"&#10003;":""}</div><div class="pipeline-label ${done?"done":""}">${step}</div></div>`;}).join("");
+  const steps=getPipelineSteps(p);
+  document.getElementById("pipeline-items").innerHTML=steps.map((step,i)=>{const done=p.pipeline[i]||false;return `<div class="pipeline-item" onclick="togglePipelineStep(${i})"><div class="pipeline-check ${done?"done":""}">${done?"&#10003;":""}</div><div class="pipeline-label ${done?"done":""}">${step}</div></div>`;}).join("");
+  document.getElementById("pipeline-edit-area").style.display="none";
+  document.getElementById("pipe-edit-btn").textContent="✎ EDIT STEPS";
   updatePipelineBar(p);
 }
 function togglePipelineStep(idx){
@@ -733,8 +750,52 @@ function togglePipelineStep(idx){
   if(p.pipeline[idx])recordActivity();persist();renderPipeline(p);
 }
 function updatePipelineBar(p){
-  if(!p.pipeline)p.pipeline={};const done=Object.values(p.pipeline).filter(Boolean).length;const pct=Math.round(done/PIPELINE_STEPS.length*100);
-  document.getElementById("pipeline-bar").style.width=pct+"%";document.getElementById("pipeline-pct").textContent=done+" / "+PIPELINE_STEPS.length+" COMPLETE";
+  if(!p.pipeline)p.pipeline={};const steps=getPipelineSteps(p);const done=Object.values(p.pipeline).filter(Boolean).length;const pct=Math.round(done/steps.length*100);
+  document.getElementById("pipeline-bar").style.width=pct+"%";document.getElementById("pipeline-pct").textContent=done+" / "+steps.length+" COMPLETE";
+}
+let pipeEditOpen=false;
+function togglePipelineEdit(){
+  const p=projects.find(x=>x.id===editingProjId);if(!p)return;
+  pipeEditOpen=!pipeEditOpen;
+  const area=document.getElementById("pipeline-edit-area");const btn=document.getElementById("pipe-edit-btn");
+  if(pipeEditOpen){area.style.display="block";btn.textContent="✔ DONE";renderPipelineInputs(p);}
+  else{savePipelineSteps(p);area.style.display="none";btn.textContent="✎ EDIT STEPS";renderPipeline(p);}
+}
+function renderPipelineInputs(p){
+  const steps=getPipelineSteps(p);
+  document.getElementById("pipeline-step-inputs").innerHTML=steps.map((s,i)=>`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+      <input type="text" value="${s.replace(/"/g,'&quot;')}" id="pipe-step-${i}" style="flex:1;font-size:13px;padding:6px 10px;background:var(--bg1);border:1px solid var(--border2);border-radius:7px;color:var(--text1);"/>
+      <button onclick="removePipelineStep(${i})" style="background:rgba(229,72,77,.15);border:1px solid rgba(229,72,77,.3);color:var(--red);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;">✕</button>
+    </div>`).join("");
+}
+function addPipelineStep(){
+  const p=projects.find(x=>x.id===editingProjId);if(!p)return;
+  savePipelineSteps(p);
+  if(!p.pipelineSteps)p.pipelineSteps=[...PIPELINE_STEPS];
+  p.pipelineSteps.push("New Step");
+  renderPipelineInputs(p);
+  const inputs=document.querySelectorAll("[id^='pipe-step-']");if(inputs.length)inputs[inputs.length-1].focus();
+}
+function removePipelineStep(idx){
+  const p=projects.find(x=>x.id===editingProjId);if(!p)return;
+  savePipelineSteps(p);
+  if(!p.pipelineSteps)p.pipelineSteps=[...PIPELINE_STEPS];
+  p.pipelineSteps.splice(idx,1);
+  delete p.pipeline[idx];
+  const newPipe={};Object.keys(p.pipeline).forEach(k=>{const ki=parseInt(k);if(ki<idx)newPipe[ki]=p.pipeline[k];else if(ki>idx)newPipe[ki-1]=p.pipeline[k];});p.pipeline=newPipe;
+  renderPipelineInputs(p);
+}
+function savePipelineSteps(p){
+  const inputs=document.querySelectorAll("[id^='pipe-step-']");
+  if(!inputs.length)return;
+  p.pipelineSteps=Array.from(inputs).map(el=>el.value.trim()||"Step");
+  persist();
+}
+function resetPipelineSteps(){
+  const p=projects.find(x=>x.id===editingProjId);if(!p)return;
+  if(!confirm("Reset to default pipeline steps?"))return;
+  p.pipelineSteps=null;p.pipeline={};persist();renderPipelineInputs(p);renderPipeline(p);pipeEditOpen=false;
 }
 let ecgAnim=null;
 function startECG(score){
