@@ -33,13 +33,9 @@ html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflo
 .px-card.aplazado{border-left-color:var(--text3);}
 /* LAYOUT */
 .app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;}
-.xp-header{background:linear-gradient(135deg,#0d1b2e 0%,#0f2244 100%);border-bottom:1px solid var(--border2);padding:14px 16px 12px;flex-shrink:0;}
-.xp-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.lvl-badge{font-size:11px;font-weight:700;color:var(--accent3);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:3px 10px;}
-.rank-badge{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;}
-.xp-bar-wrap{height:10px;background:rgba(255,255,255,.06);border-radius:10px;overflow:hidden;position:relative;}
-.xp-bar{height:100%;background:linear-gradient(90deg,var(--accent-dark),var(--accent),#60a5fa);background-size:200% 100%;animation:shimmer 3s linear infinite;transition:width .5s ease;border-radius:10px;}
-.xp-bar-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:8px;font-weight:700;color:rgba(255,255,255,.7);pointer-events:none;}
+.streak-header{background:linear-gradient(135deg,#0d1b2e 0%,#0f2244 100%);border-bottom:1px solid var(--border2);padding:14px 16px 12px;flex-shrink:0;}
+.streak-badge{font-size:12px;font-weight:700;color:var(--amber);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:20px;padding:3px 11px;}
+.closed-badge{font-size:12px;font-weight:700;color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:3px 11px;}
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg1);border-bottom:1px solid var(--border2);flex-shrink:0;}
 .topbar-title{font-size:13px;font-weight:700;color:var(--text1);letter-spacing:.5px;}
@@ -228,24 +224,20 @@ select option{background:var(--bg1);}textarea{resize:none;}
 </div>
 
 <div class="app">
-<div class="xp-header">
-  <div class="xp-row1">
-    <div style="display:flex;gap:8px;align-items:center;">
+<div class="streak-header">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;gap:10px;align-items:center;">
       <div id="header-avatar" style="font-size:44px;line-height:1;cursor:pointer;filter:drop-shadow(0 0 8px rgba(59,130,246,.5));" onclick="openProfile()">&#9760;</div>
       <div>
-        <div id="header-name" style="font-size:26px;font-weight:800;color:var(--text1);margin-bottom:5px;letter-spacing:-.3px;line-height:1.1;">PLAYER</div>
-        <div style="display:flex;gap:6px;">
-          <div class="lvl-badge" id="lvl-badge">LVL 01</div>
-          <div class="rank-badge" id="rank-badge">ROOKIE</div>
+        <div id="header-name" style="font-size:26px;font-weight:800;color:var(--text1);letter-spacing:-.3px;line-height:1.1;margin-bottom:6px;">PLAYER</div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <div class="streak-badge" id="streak-badge">&#128293; 0 DÍAS</div>
+          <div class="closed-badge" id="closed-badge">&#10003; 0 MES</div>
         </div>
       </div>
     </div>
-    <div style="text-align:right;">
-      <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:3px;text-align:right;" id="xp-label">00000 XP</div>
-      <div style="font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;text-align:right;" onclick="openProfile()">&#9881; SETTINGS</div>
-    </div>
+    <div style="font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;" onclick="openProfile()">&#9881; SETTINGS</div>
   </div>
-  <div class="xp-bar-wrap" style="margin-top:6px;"><div class="xp-bar" id="xp-bar" style="width:0%"></div><span class="xp-bar-pct" id="xp-bar-pct">0%</span></div>
 </div>
 
 <div class="topbar">
@@ -352,23 +344,28 @@ select option{background:var(--bg1);}textarea{resize:none;}
   </div>
 
   <div class="view" id="view-hours">
-    <div class="sec-hd">DEPARTMENT OVERVIEW</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-      <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:14px;"><div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px;text-transform:uppercase;">TOTAL PROJECTS</div><div style="font-size:28px;font-weight:800;color:var(--accent);" id="stat-total">00</div></div>
-      <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:14px;"><div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px;text-transform:uppercase;">URGENT</div><div style="font-size:28px;font-weight:800;color:var(--red);" id="stat-urgent">00</div></div>
-      <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:14px;"><div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px;text-transform:uppercase;">IN PROGRESS</div><div style="font-size:28px;font-weight:800;color:var(--accent);" id="stat-progress">00</div></div>
-      <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:14px;"><div style="font-size:11px;font-weight:500;color:var(--text3);margin-bottom:6px;text-transform:uppercase;">ON HOLD</div><div style="font-size:28px;font-weight:800;color:var(--amber);" id="stat-hold">00</div></div>
-    </div>
-    <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">STATUS BREAKDOWN</div>
-      <div style="display:flex;align-items:center;gap:16px;">
-        <canvas id="stats-chart" width="120" height="120" style="flex-shrink:0;"></canvas>
-        <div id="chart-legend" style="flex:1;"></div>
+    <!-- ACTIVITY HEATMAP -->
+    <div class="sec-hd">ACTIVIDAD — ÚLTIMOS 3 MESES</div>
+    <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
+      <div id="report-heatmap"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end;">
+        <span style="font-size:10px;color:var(--text3);">Menos</span>
+        <div style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid var(--border);"></div>
+        <div style="width:10px;height:10px;border-radius:3px;background:rgba(59,130,246,.25);"></div>
+        <div style="width:10px;height:10px;border-radius:3px;background:rgba(59,130,246,.55);"></div>
+        <div style="width:10px;height:10px;border-radius:3px;background:var(--accent);box-shadow:0 0 6px rgba(59,130,246,.5);"></div>
+        <span style="font-size:10px;color:var(--text3);">Más</span>
       </div>
     </div>
+    <!-- WORKLOAD BY MONTH -->
+    <div class="sec-hd">CARGA — PRÓXIMOS 6 MESES</div>
     <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">UPCOMING DEADLINES</div>
-      <div id="upcoming-deadlines"></div>
+      <div id="report-workload"></div>
+    </div>
+    <!-- PIPELINE BOTTLENECK -->
+    <div class="sec-hd">BOTTLENECK DEL PIPELINE</div>
+    <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:14px;margin-bottom:16px;">
+      <div id="report-pipeline"></div>
     </div>
     <div style="height:2px;background:var(--border2);margin-bottom:16px;"></div>
     <div class="sec-hd">SYNC & BACKUP</div>
@@ -377,7 +374,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <button class="px-btn" onclick="exportData()" style="justify-content:center;">EXPORT JSON</button>
       <button class="px-btn muted" onclick="document.getElementById('import-file').click()" style="justify-content:center;">IMPORT JSON</button>
     </div>
-    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Google Drive sync active when logged in. Or use EXPORT / IMPORT for manual backup.</div>
+    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Google Drive sync activo cuando estás logueado. O usa EXPORT / IMPORT para backup manual.</div>
   </div>
 </div>
 
@@ -507,12 +504,12 @@ select option{background:var(--bg1);}textarea{resize:none;}
       </div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">STATS</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">ACTIVIDAD</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL XP</div><div style="font-size:18px;font-weight:800;color:var(--accent);" id="prof-xp">0</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">LEVEL</div><div style="font-size:18px;font-weight:800;color:var(--accent);" id="prof-lvl">01</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">RANK</div><div style="font-size:18px;font-weight:700;color:var(--accent2);" id="prof-rank">ROOKIE</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">COMPLETED</div><div style="font-size:18px;font-weight:800;color:var(--accent);" id="prof-done">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#128293; RACHA ACTUAL</div><div style="font-size:22px;font-weight:800;color:var(--amber);" id="prof-streak">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#127942; MEJOR RACHA</div><div style="font-size:22px;font-weight:800;color:var(--accent);" id="prof-best">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">&#10003; CERRADOS MES</div><div style="font-size:22px;font-weight:800;color:var(--green);" id="prof-month">0</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px;">TOTAL ACTIVOS</div><div style="font-size:22px;font-weight:800;color:var(--text2);" id="prof-done">0</div></div>
       </div>
     </div>
     <div class="btn-row">
@@ -535,19 +532,6 @@ const PO={critico:0,produccion:1,listo:2,gestion:3,aplazado:4};
 const UO={alta:0,media:1,baja:2};
 const MN=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
 const DN=["L","M","X","J","V","S","D"];
-const XP_LEVELS=[0,300,800,1800,3500,6000,10000,16000,25000,40000,60000];
-const RANKS=[
-  {min:0,name:"DECK HAND",color:"#7060a8",glow:"rgba(112,96,168,.4)"},
-  {min:100,name:"SAILOR",color:"#7c6af7",glow:"rgba(124,106,247,.4)"},
-  {min:300,name:"BOSUN",color:"#00ffff",glow:"rgba(0,255,255,.4)"},
-  {min:700,name:"HELMSMAN",color:"#00e676",glow:"rgba(0,230,118,.4)"},
-  {min:1500,name:"FIRST MATE",color:"#ffff00",glow:"rgba(255,255,0,.4)"},
-  {min:3000,name:"CAPTAIN",color:"#ff8800",glow:"rgba(255,136,0,.4)"},
-  {min:6000,name:"COMMODORE",color:"#ff2244",glow:"rgba(255,34,68,.4)"},
-  {min:12000,name:"ADMIRAL",color:"#ff00ff",glow:"rgba(255,0,255,.4)"},
-  {min:25000,name:"FLEET LORD",color:"#ffffff",glow:"rgba(255,255,255,.5)"},
-  {min:50000,name:"LEGEND",color:"#ffd700",glow:"rgba(255,215,0,.6)"},
-];
 const DP=[
   {id:1779783806290,name:"Alpha Centauri - New sail",status:"produccion",urgency:"media",deadline:"2026-09-07",owner:"Pau",next:"Peter to measure aprox end of july",notes:"",history:[]},
   {id:1779783041729,name:"Brenta 24 - New A2 x 6",status:"gestion",urgency:"media",deadline:"2026-07-24",owner:"Peter",next:"Peter to push",notes:"",history:[]},
@@ -586,7 +570,7 @@ function retrieve(k,def){let s=null;try{s=localStorage.getItem(k);}catch(e){}if(
 let projects=retrieve("sm-p",DP).map(p=>({...p,history:p.history||[]}));
 let todos=retrieve("sm-t",[]);
 let hourEntries=retrieve("sm-h",[]);
-let gdata=retrieve("sm-g",{xp:0,completed:0,achievements:[]});
+let gdata=retrieve("sm-g",{streak:0,bestStreak:0,lastActivity:"",activityDates:[],completed:0});
 let editingProjId=null,projFilter="all",calYear=2026,calMonth=new Date().getMonth();
 function persist(){
   store("sm-p",projects);store("sm-t",todos);store("sm-h",hourEntries);store("sm-g",gdata);
@@ -596,45 +580,42 @@ function persist(){
   if(window.driveSync&&!window._skipDriveSync)window.driveSync.triggerSave();
 }
 function showSaved(){const el=document.getElementById("save-status");el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1500);}
-const XP_ACH=[
-  {id:"first_blood",name:"FIRST BLOOD",desc:"Complete first action",req:()=>(gdata.completed||0)>=1,xp:30},
-  {id:"on_fire",name:"ON FIRE",desc:"5 projects completed",req:()=>(gdata.completed||0)>=5,xp:100},
-  {id:"veteran",name:"VETERAN",desc:"12 completed",req:()=>(gdata.completed||0)>=12,xp:200},
-  {id:"elite",name:"ELITE",desc:"25 completed",req:()=>(gdata.completed||0)>=25,xp:500},
-  {id:"legend",name:"LEGEND",desc:"50 projects done",req:()=>(gdata.completed||0)>=50,xp:1000},
-  {id:"note_taker",name:"NOTE TAKER",desc:"Log 10 meeting notes",req:()=>projects.reduce((s,p)=>s+(p.history?p.history.length:0),0)>=10,xp:50},
-  {id:"project_master",name:"PROJ MASTER",desc:"20+ active projects",req:()=>projects.filter(p=>p.status!=="aplazado").length>=20,xp:75},
-  {id:"logger",name:"TIME LOGGER",desc:"Log hours 5 times",req:()=>hourEntries.length>=5,xp:60},
-];
-function addXP(amount,reason){
-  var oldXP=gdata.xp||0;var oldRank=getRank(oldXP);gdata.xp=oldXP+amount;store("sm-g",gdata);showToast("+"+amount+" XP  "+reason);
-  var newRank=getRank(gdata.xp);if(newRank.name!==oldRank.name)setTimeout(()=>rankUpCelebration(newRank),500);
-  updateXPBar();checkAchievements();
+function todayStr(){return new Date().toISOString().split("T")[0];}
+function calcStreakFromDates(dates){
+  if(!dates||!dates.length)return 0;
+  const set=new Set(dates);
+  const t=new Date(),y=new Date(t);y.setDate(y.getDate()-1);
+  const ts=t.toISOString().split("T")[0],ys=y.toISOString().split("T")[0];
+  if(!set.has(ts)&&!set.has(ys))return 0;
+  let streak=0,cur=set.has(ts)?new Date(t):new Date(y);
+  while(true){const ds=cur.toISOString().split("T")[0];if(!set.has(ds))break;streak++;cur.setDate(cur.getDate()-1);}
+  return streak;
 }
-function rankUpCelebration(rank){
-  showToast("RANK UP! YOU ARE NOW: "+rank.name);
-  var header=document.querySelector(".xp-header");var flashes=0;
-  var flash=setInterval(()=>{header.style.borderBottomColor=flashes%2===0?rank.color:"var(--accent)";header.style.boxShadow=flashes%2===0?"0 0 20px "+rank.glow:"none";flashes++;if(flashes>6){clearInterval(flash);header.style.borderBottomColor="";header.style.boxShadow="";}},150);
+function recordActivity(){
+  const today=todayStr();
+  if(!gdata.activityDates)gdata.activityDates=[];
+  if(!gdata.activityDates.includes(today)){
+    gdata.activityDates.push(today);
+    gdata.activityDates=gdata.activityDates.slice(-365);
+    gdata.lastActivity=today;
+    const s=calcStreakFromDates(gdata.activityDates);
+    gdata.streak=s;
+    if(s>=(gdata.bestStreak||0))gdata.bestStreak=s;
+    store("sm-g",gdata);
+    updateStreakDisplay();
+  }
 }
-function getLvl(xp){for(let i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i])return i+1;}return 1;}
-function getRank(c){for(let i=RANKS.length-1;i>=0;i--){if(c>=RANKS[i].min)return RANKS[i];}return RANKS[0];}
-function updateXPBar(){
-  const xp=gdata.xp||0,lvl=getLvl(xp);
-  const lxp=XP_LEVELS[Math.min(lvl-1,XP_LEVELS.length-1)],nxp=XP_LEVELS[Math.min(lvl,XP_LEVELS.length-1)];
-  const pct=nxp>lxp?Math.round((xp-lxp)/(nxp-lxp)*100):100;
-  document.getElementById("lvl-badge").textContent="LVL "+String(lvl).padStart(2,"0");
-  document.getElementById("xp-label").textContent=String(xp).padStart(5,"0")+" XP";
-  document.getElementById("xp-bar").style.width=pct+"%";
-  const pctEl=document.getElementById("xp-bar-pct");if(pctEl)pctEl.textContent=pct+"%";
-  const rank=getRank(xp);const rb=document.getElementById("rank-badge");
-  rb.textContent=rank.name;rb.style.borderColor=rank.color;rb.style.color=rank.color;
+function updateStreakDisplay(){
+  const s=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
+  const sb=document.getElementById("streak-badge");if(sb)sb.textContent="🔥 "+s+" DÍAS";
+  const now=new Date();
+  const monthClosed=projects.filter(p=>{
+    if(p.status==="finalizado"){const d=p.finishedAt?new Date(p.finishedAt):null;return d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
+    return p.status==="listo";
+  }).length;
+  const cb=document.getElementById("closed-badge");if(cb)cb.textContent="✓ "+monthClosed+" MES";
 }
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
-function checkAchievements(){
-  let changed=false;
-  XP_ACH.forEach(a=>{if(!gdata.achievements.includes(a.id)&&a.req()){gdata.achievements.push(a.id);gdata.xp=(gdata.xp||0)+a.xp;showToast("UNLOCKED: "+a.name+" +"+a.xp+"XP");changed=true;}});
-  if(changed){store("sm-g",gdata);updateXPBar();}
-}
 function calcHealth(){
   let score=100;const factors=[];const now=new Date();const todayStr=new Date().toISOString().split("T")[0];
   const active=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado");
@@ -696,7 +677,7 @@ function renderPipeline(p){
 function togglePipelineStep(idx){
   if(!editingProjId)return;const p=projects.find(x=>x.id===editingProjId);if(!p)return;
   if(!p.pipeline)p.pipeline={};p.pipeline[idx]=!p.pipeline[idx];
-  if(p.pipeline[idx])addXP(15,"PIPELINE STEP DONE");persist();renderPipeline(p);
+  if(p.pipeline[idx])recordActivity();persist();renderPipeline(p);
 }
 function updatePipelineBar(p){
   if(!p.pipeline)p.pipeline={};const done=Object.values(p.pipeline).filter(Boolean).length;const pct=Math.round(done/PIPELINE_STEPS.length*100);
@@ -766,7 +747,7 @@ function renderTodos(){
   if(!todos.length){empty.style.display="block";list.innerHTML="";return;}empty.style.display="none";
   list.innerHTML=todos.map((t,i)=>`<div class="todo-item"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTodo(${i})"/><span style="flex:1;" class="${t.done?"todo-done":""}">${t.text}</span><button onclick="deleteTodo(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 6px;">X</button></div>`).join("");
 }
-function toggleTodo(i){const was=todos[i].done;todos[i].done=!todos[i].done;if(!was){gdata.completed=(gdata.completed||0)+1;addXP(20,"TASK COMPLETE!");}persist();renderTodos();checkAchievements();}
+function toggleTodo(i){const was=todos[i].done;todos[i].done=!todos[i].done;if(!was){gdata.completed=(gdata.completed||0)+1;recordActivity();}persist();renderTodos();}
 function deleteTodo(i){todos.splice(i,1);persist();renderTodos();}
 function clearDone(){todos=todos.filter(t=>!t.done);persist();renderTodos();}
 function filterProj(f,el){projFilter=f;document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");renderProjects(f);}
@@ -812,7 +793,7 @@ function addNote(){
   const inp=document.getElementById("new-note-input");const t=inp.value.trim();if(!t||!editingProjId)return;
   const p=projects.find(x=>x.id===editingProjId);if(!p)return;if(!p.history)p.history=[];
   const now=new Date();p.history.push({id:Date.now(),text:t,date:now.toLocaleDateString("es-ES")+" "+now.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})});
-  inp.value="";addXP(5,"LOG ENTRY ADDED");persist();renderNotesHistory(p);checkAchievements();
+  inp.value="";recordActivity();persist();renderNotesHistory(p);
 }
 function generateVerdict(p){
   const el=document.getElementById("verdict-text"),fin=document.getElementById("verdict-final");
@@ -841,9 +822,9 @@ function copyShareText(){navigator.clipboard.writeText(document.getElementById("
 function saveProjectModal(){
   const name=document.getElementById("pj-name").value.trim();if(!name){alert("NAME REQUIRED");return;}
   const data={name,status:document.getElementById("pj-status").value,urgency:document.getElementById("pj-urgency").value,deadline:document.getElementById("pj-deadline").value,next:document.getElementById("pj-next").value,notes:document.getElementById("pj-notes").value};
-  if(editingProjId){const was=projects.find(p=>p.id===editingProjId)?.status;projects=projects.map(p=>p.id===editingProjId?{...p,...data}:p);if(data.status==="listo"&&was!=="listo"){gdata.completed=(gdata.completed||0)+1;addXP(30,"PROJECT READY!");}else addXP(3,"PROJECT UPDATED");}
-  else{projects.unshift({id:Date.now(),...data,history:[]});addXP(10,"NEW PROJECT CREATED");}
-  persist();closeModal("project");renderProjects(projFilter);editingProjId=null;checkAchievements();
+  if(editingProjId){const was=projects.find(p=>p.id===editingProjId)?.status;projects=projects.map(p=>p.id===editingProjId?{...p,...data}:p);if(data.status==="listo"&&was!=="listo")gdata.completed=(gdata.completed||0)+1;}
+  else{projects.unshift({id:Date.now(),...data,history:[]});}
+  recordActivity();persist();closeModal("project");renderProjects(projFilter);editingProjId=null;
 }
 function deleteProject(id){if(!confirm("DELETE PROJECT?"))return;projects=projects.filter(p=>p.id!==id);persist();closeModal("project");renderProjects(projFilter);editingProjId=null;}
 function finishProject(id){
@@ -851,8 +832,8 @@ function finishProject(id){
   const p=projects.find(x=>x.id===id);if(!p)return;
   const was=p.status;
   projects=projects.map(x=>x.id===id?{...x,status:"finalizado",finishedAt:new Date().toISOString()}:x);
-  if(was!=="finalizado"){gdata.completed=(gdata.completed||0)+1;addXP(100,"PROJECT FINISHED!");}
-  persist();closeModal("project");renderProjects(projFilter);editingProjId=null;checkAchievements();
+  if(was!=="finalizado"){gdata.completed=(gdata.completed||0)+1;}
+  recordActivity();persist();closeModal("project");renderProjects(projFilter);editingProjId=null;
 }
 function updateBillOpts(){}
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();}
@@ -936,15 +917,138 @@ function calClick(ds){
   setTimeout(()=>detail.scrollIntoView({behavior:"smooth",block:"nearest"}),50);
 }
 function renderStats(){
-  var total=projects.length,urgent=projects.filter(p=>p.status==="critico").length,inprog=projects.filter(p=>p.status==="produccion").length,onhold=projects.filter(p=>p.status==="gestion").length,ready=projects.filter(p=>p.status==="listo").length,parked=projects.filter(p=>p.status==="aplazado").length;
-  document.getElementById("stat-total").textContent=pad(total);document.getElementById("stat-urgent").textContent=pad(urgent);document.getElementById("stat-progress").textContent=pad(inprog);document.getElementById("stat-hold").textContent=pad(onhold);
-  var canvas=document.getElementById("stats-chart");if(!canvas)return;var ctx=canvas.getContext("2d"),W=120,H=120,cx=60,cy=60,r=46,inner=28;ctx.clearRect(0,0,W,H);
-  var segments=[{val:urgent,color:"#f87171",label:"URGENT"},{val:inprog,color:"#3b82f6",label:"IN PROG"},{val:onhold,color:"#fbbf24",label:"ON HOLD"},{val:ready,color:"#34d399",label:"READY"},{val:parked,color:"#475569",label:"PARKED"}].filter(s=>s.val>0);
-  if(!segments.length){ctx.fillStyle="#1d4ed8";ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();}else{var tot=segments.reduce((s,x)=>s+x.val,0),angle=-Math.PI/2;segments.forEach(seg=>{var sweep=(seg.val/tot)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+sweep);ctx.closePath();ctx.fillStyle=seg.color;ctx.fill();angle+=sweep;});}
-  ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);ctx.fillStyle="#080d14";ctx.fill();ctx.fillStyle="#e2e8f0";ctx.font="bold 16px 'Inter',sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(String(total).padStart(2,"0"),cx,cy);
-  document.getElementById("chart-legend").innerHTML=segments.map(s=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:10px;height:10px;background:${s.color};border-radius:50%;display:inline-block;"></span><span style="font-size:12px;font-weight:500;color:var(--text2);">${s.label}</span><span style="font-size:13px;font-weight:700;color:${s.color};margin-left:auto;">${pad(s.val)}</span></div>`).join("");
-  var now=new Date();var soon=projects.filter(p=>{if(!p.deadline||p.status==="aplazado")return false;var diff=(new Date(p.deadline)-now)/86400000;return diff>=-1&&diff<=60;}).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-  document.getElementById("upcoming-deadlines").innerHTML=!soon.length?`<div style="font-size:13px;color:var(--text3);">No deadlines in next 60 days</div>`:soon.slice(0,6).map(p=>{var d=Math.ceil((new Date(p.deadline)-now)/86400000);var col=d<0?"var(--red)":d<=7?"var(--amber)":"var(--text2)";var dstr=d<0?"EXPIRED":d===0?"TODAY":d+"D";return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${p.deadline}</div></div><span style="font-size:12px;font-weight:700;color:${col};flex-shrink:0;">${dstr}</span></div>`;}).join("");
+  renderHeatmap();
+  renderWorkload();
+  renderPipelineBottleneck();
+}
+function renderHeatmap(){
+  const el=document.getElementById("report-heatmap");if(!el)return;
+  const actDates=new Set(gdata.activityDates||[]);
+  const now=new Date();
+  /* build 13 weeks = ~91 days, starting from Monday 13 weeks ago */
+  const WEEKS=13;
+  const start=new Date(now);
+  start.setDate(start.getDate()-((WEEKS*7)-1));
+  /* align to Monday */
+  const dow=(start.getDay()+6)%7;start.setDate(start.getDate()-dow);
+  const dayLabels=["L","","X","","V","","D"];
+  /* month labels: collect unique months and their column positions */
+  const monthCols={};
+  let html='<div style="display:flex;gap:3px;">';
+  /* day-of-week labels column */
+  html+='<div style="display:flex;flex-direction:column;gap:3px;margin-right:2px;">';
+  dayLabels.forEach(d=>html+=`<div style="height:11px;font-size:9px;color:var(--text3);line-height:11px;width:10px;text-align:right;">${d}</div>`);
+  html+='</div>';
+  for(let w=0;w<WEEKS;w++){
+    const colDate=new Date(start);colDate.setDate(colDate.getDate()+w*7);
+    const mKey=colDate.getMonth()+"-"+colDate.getFullYear();
+    if(!monthCols[mKey])monthCols[mKey]={col:w,label:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][colDate.getMonth()]};
+    html+='<div style="display:flex;flex-direction:column;gap:3px;">';
+    for(let d=0;d<7;d++){
+      const day=new Date(start);day.setDate(day.getDate()+w*7+d);
+      const ds=day.toISOString().split("T")[0];
+      const isFuture=day>now;
+      const isToday=ds===now.toISOString().split("T")[0];
+      const hasAct=actDates.has(ds);
+      let bg,border="none",shadow="none";
+      if(isFuture){bg="transparent";}
+      else if(isToday&&hasAct){bg="var(--accent)";shadow="0 0 6px rgba(59,130,246,.6)";}
+      else if(isToday){bg="rgba(59,130,246,.2)";border="1px solid var(--accent)";}
+      else if(hasAct){bg="rgba(59,130,246,.6)";}
+      else{bg="rgba(255,255,255,.05)";border="1px solid var(--border)";}
+      html+=`<div style="width:11px;height:11px;border-radius:2px;background:${bg};border:${border};box-shadow:${shadow};" title="${ds}"></div>`;
+    }
+    html+='</div>';
+  }
+  html+='</div>';
+  /* month labels row */
+  html+='<div style="display:flex;gap:3px;margin-top:4px;margin-left:15px;position:relative;">';
+  Object.values(monthCols).forEach(m=>{
+    html+=`<div style="flex:0 0 ${11+3}px;font-size:9px;color:var(--text3);overflow:visible;white-space:nowrap;">${m.label}</div>`;
+  });
+  html+='</div>';
+  /* streak summary */
+  const streak=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
+  const total=[...actDates].filter(ds=>ds>=start.toISOString().split("T")[0]).length;
+  html+=`<div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">RACHA ACTUAL</div><div style="font-size:18px;font-weight:800;color:var(--amber);">🔥 ${streak} días</div></div>
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">MEJOR RACHA</div><div style="font-size:18px;font-weight:800;color:var(--accent);">${gdata.bestStreak||streak} días</div></div>
+    <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px;">DÍAS ACTIVOS</div><div style="font-size:18px;font-weight:800;color:var(--text2);">${total}/91</div></div>
+  </div>`;
+  el.innerHTML=html;
+}
+function renderWorkload(){
+  const el=document.getElementById("report-workload");if(!el)return;
+  const now=new Date();
+  const months=[];
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    months.push({year:d.getFullYear(),month:d.getMonth(),label:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][d.getMonth()]});
+  }
+  const counts=months.map(m=>{
+    return projects.filter(p=>{
+      if(!p.deadline||p.status==="aplazado"||p.status==="finalizado")return false;
+      const pd=new Date(p.deadline);return pd.getMonth()===m.month&&pd.getFullYear()===m.year;
+    }).length;
+  });
+  const max=Math.max(...counts,1);
+  const urgentCounts=months.map(m=>{
+    return projects.filter(p=>{
+      if(!p.deadline||p.status==="aplazado"||p.status==="finalizado")return false;
+      const pd=new Date(p.deadline);return pd.getMonth()===m.month&&pd.getFullYear()===m.year&&p.status==="critico";
+    }).length;
+  });
+  el.innerHTML=months.map((m,i)=>{
+    const pct=Math.round((counts[i]/max)*100);
+    const isNow=m.month===now.getMonth()&&m.year===now.getFullYear();
+    const barCol=counts[i]>=6?"var(--red)":counts[i]>=3?"var(--amber)":"var(--accent)";
+    const urgBadge=urgentCounts[i]>0?`<span style="font-size:10px;font-weight:700;color:var(--red);background:rgba(248,113,113,.12);border-radius:8px;padding:1px 6px;">&#9650; ${urgentCounts[i]}</span>`:"";
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:7px;">
+          <span style="font-size:12px;font-weight:700;color:${isNow?"var(--accent)":"var(--text2)"};">${m.label}${isNow?" ◀":""}</span>
+          ${urgBadge}
+        </div>
+        <span style="font-size:13px;font-weight:800;color:${barCol};">${counts[i]}</span>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${barCol};border-radius:6px;transition:width .6s ease;${counts[i]>=3?"box-shadow:0 0 8px "+barCol+"55;":""}"></div>
+      </div>
+    </div>`;
+  }).join("");
+  if(!counts.some(c=>c>0))el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No hay deadlines en los próximos 6 meses</div>`;
+}
+function renderPipelineBottleneck(){
+  const el=document.getElementById("report-pipeline");if(!el)return;
+  const STEPS=["Quoted","Order Done","Design Accepted","Production Sheet","Material Ordered","Material in Loft"];
+  /* count projects stuck at each step = first unchecked step */
+  const stuck=new Array(STEPS.length).fill(0);
+  let total=0;
+  projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado"&&p.pipeline).forEach(p=>{
+    for(let i=0;i<STEPS.length;i++){if(!p.pipeline[i]){stuck[i]++;break;}}
+    total++;
+  });
+  const noPipeline=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado"&&!p.pipeline).length;
+  const maxStuck=Math.max(...stuck,1);
+  if(total===0&&noPipeline===0){el.innerHTML=`<div style="font-size:13px;color:var(--text3);">No hay proyectos activos con pipeline</div>`;return;}
+  el.innerHTML=STEPS.map((step,i)=>{
+    const pct=Math.round((stuck[i]/maxStuck)*100);
+    const isBottleneck=stuck[i]===Math.max(...stuck)&&stuck[i]>0;
+    const col=isBottleneck?"var(--red)":stuck[i]>0?"var(--amber)":"var(--text3)";
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:12px;color:var(--text3);">${i+1}.</span>
+          <span style="font-size:12px;font-weight:${isBottleneck?700:500};color:${isBottleneck?"var(--text1)":"var(--text2)"};">${step}</span>
+          ${isBottleneck&&stuck[i]>0?`<span style="font-size:9px;font-weight:700;color:var(--red);background:rgba(248,113,113,.12);border-radius:8px;padding:1px 7px;">CUELLO DE BOTELLA</span>`:""}
+        </div>
+        <span style="font-size:13px;font-weight:700;color:${col};">${stuck[i]}</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${stuck[i]>0?Math.max(pct,4):0}%;background:${col};border-radius:4px;transition:width .6s ease;"></div>
+      </div>
+    </div>`;
+  }).join("")+(noPipeline>0?`<div style="margin-top:8px;font-size:12px;color:var(--text3);">+ ${noPipeline} proyectos sin pipeline asignado</div>`:"");
 }
 function exportData(){const d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="sail-mgr-"+new Date().toISOString().split("T")[0]+".json";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showSaved();}
 function shareViaWhatsApp(){var d={v:2,date:new Date().toISOString(),projects,todos,hourEntries};var jsonStr=JSON.stringify(d,null,2);if(navigator.share){navigator.share({title:"MANAGER ASSIST Backup",text:"Sail Manager backup "+new Date().toLocaleDateString("es-ES")}).catch(()=>{});}else{navigator.clipboard.writeText(jsonStr).then(()=>showToast("JSON COPIED TO CLIPBOARD"));}}
@@ -974,7 +1078,12 @@ function openProfile(){
   var el=document.getElementById("profile-avatar");
   if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';}else{el.innerHTML=AVATARS[avatarIdx];}
   document.getElementById("profile-name").value=prof.name||"";
-  document.getElementById("prof-xp").textContent=String(gdata.xp||0);document.getElementById("prof-lvl").textContent=String(getLvl(gdata.xp||0)).padStart(2,"0");document.getElementById("prof-rank").textContent=getRank(gdata.xp||0).name;document.getElementById("prof-done").textContent=String(gdata.completed||0);
+  const s=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
+  document.getElementById("prof-streak").textContent=s;
+  document.getElementById("prof-best").textContent=gdata.bestStreak||0;
+  const now2=new Date();
+  document.getElementById("prof-month").textContent=projects.filter(p=>{if(p.status==="finalizado"){const d=p.finishedAt?new Date(p.finishedAt):null;return d&&d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();}return p.status==="listo";}).length;
+  document.getElementById("prof-done").textContent=projects.filter(p=>p.status!=="aplazado"&&p.status!=="finalizado").length;
   document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.toggle("active",s.dataset.color===(prof.theme||"#3b82f6"));s.style.borderColor=s.dataset.color===(prof.theme||"#3b82f6")?"white":"transparent";});
   var crtOn=prof.crt!==false;document.getElementById("crt-on").className="px-btn sm"+(crtOn?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(crtOn?" muted":"");
   openModal("profile");
@@ -992,7 +1101,7 @@ function applyProfile(prof){if(!prof)return;document.getElementById("header-name
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
-window.persist=persist;window.renderDaily=renderDaily;window.updateXPBar=updateXPBar;window.checkAchievements=checkAchievements;window.applyProfile=applyProfile;
+window.persist=persist;window.renderDaily=renderDaily;window.updateStreakDisplay=updateStreakDisplay;window.applyProfile=applyProfile;
 window.applyData=function(data){
   if(Array.isArray(data.projects))projects=data.projects.map(p=>({...p,history:p.history||[]}));
   if(Array.isArray(data.todos))todos=data.todos;
@@ -1002,7 +1111,7 @@ window.applyData=function(data){
 };
 // INIT
 const now=new Date();if(now.getHours()>=14&&now.getMinutes()>=45)document.getElementById("hours-dot").style.display="block";
-loadProfile();runBoot();updateXPBar();checkAchievements();renderDaily();
+loadProfile();runBoot();updateStreakDisplay();renderDaily();
 </script>
 <script>
 const FILE_NAME='sail-mgr-data.json';const SCOPE='https://www.googleapis.com/auth/drive.appdata';const STORAGE_KEY_TOKEN='sail-drive-token';const STORAGE_KEY_USER='sail-drive-user';const SAVE_DEBOUNCE_MS=1200;
