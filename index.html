@@ -23,6 +23,11 @@
 body.theme-midnight{--bg0:#0d0d14;--bg1:#131320;--bg2:#1a1a2e;background:linear-gradient(160deg,#0d0d14 0%,#16163a 100%)!important;}
 body.theme-ocean{--bg0:#080e18;--bg1:#0d1827;--bg2:#122033;background:linear-gradient(160deg,#080e18 0%,#0d2545 100%)!important;}
 body.theme-forest{--bg0:#080f0a;--bg1:#0d1a10;--bg2:#132018;background:linear-gradient(160deg,#080f0a 0%,#0e2916 100%)!important;}
+body.theme-ember{--bg0:#110a08;--bg1:#1c1008;--bg2:#251808;background:linear-gradient(160deg,#110a08 0%,#3d1a06 100%)!important;}
+body.theme-dusk{--bg0:#100d14;--bg1:#180f20;--bg2:#22122e;background:linear-gradient(160deg,#100d14 0%,#2e1040 100%)!important;}
+body.theme-aurora{--bg0:#080f12;--bg1:#0a1a1e;--bg2:#0f2228;background:linear-gradient(160deg,#080f12 0%,#072530 100%)!important;}
+body.theme-rose{--bg0:#120a0d;--bg1:#1c0f13;--bg2:#24121a;background:linear-gradient(160deg,#120a0d 0%,#38101e 100%)!important;}
+body.theme-slate{--bg0:#0a0c10;--bg1:#10131a;--bg2:#161b26;background:linear-gradient(160deg,#0a0c10 0%,#141e33 100%)!important;}
 .theme-swatch{height:40px;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .1s;position:relative;overflow:hidden;}
 .theme-swatch.active{border-color:white;transform:scale(1.04);}
 .theme-swatch-label{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px;}
@@ -247,19 +252,22 @@ select option{background:var(--bg1);}textarea{resize:none;}
 </div>
 
 <div class="app">
-<div class="streak-header">
+<div class="streak-header" onclick="openProfile()" style="cursor:pointer;">
   <div style="display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;gap:10px;align-items:center;">
-      <div id="header-avatar" style="font-size:44px;line-height:1;cursor:pointer;filter:drop-shadow(0 0 8px rgba(59,130,246,.5));" onclick="openProfile()">&#9760;</div>
+      <div id="header-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;border:1.5px solid rgba(255,255,255,.12);">P</div>
       <div>
-        <div id="header-name" style="font-size:26px;font-weight:800;color:var(--text1);letter-spacing:-.3px;line-height:1.1;margin-bottom:6px;">PLAYER</div>
-        <div style="display:flex;gap:7px;align-items:center;">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <div id="header-name" style="font-size:15px;font-weight:600;color:var(--text1);letter-spacing:-.1px;line-height:1.2;">PLAYER</div>
+          <div id="header-role" style="font-size:11px;color:var(--text3);font-weight:400;">—</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:3px;">
           <div class="streak-badge" id="streak-badge">&#128293; 0 DAYS</div>
           <div class="closed-badge" id="closed-badge">&#10003; 0 / MO</div>
         </div>
       </div>
     </div>
-    <div style="font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;" onclick="openProfile()">&#9881; SETTINGS</div>
+    <div style="font-size:11px;font-weight:500;color:var(--text3);">&#9881;</div>
   </div>
 </div>
 
@@ -515,7 +523,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
         <label style="cursor:pointer;"><input type="file" id="avatar-photo-input" accept="image/*" style="display:none;" onchange="loadAvatarPhoto(event)"/><span class="px-btn sm">Import Photo</span></label>
       </div>
     </div>
-    <div style="margin-bottom:10px;"><label class="form-label">PLAYER NAME</label><input type="text" id="profile-name" placeholder="Enter your name..." maxlength="16"/></div>
+    <div style="margin-bottom:10px;"><label class="form-label">NAME</label><input type="text" id="profile-name" placeholder="Your name..." maxlength="20"/></div>
+    <div style="margin-bottom:10px;"><label class="form-label">ROLE / POSITION</label><input type="text" id="profile-role" placeholder="e.g. Manager of Department..." maxlength="40"/></div>
     <div style="margin-bottom:10px;">
       <label class="form-label">ACCENT COLOR</label>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px;" id="theme-colors">
@@ -542,6 +551,11 @@ select option{background:var(--bg1);}textarea{resize:none;}
         <div class="theme-swatch" id="tsw-midnight" onclick="setAppTheme('midnight',this)" style="background:linear-gradient(160deg,#0d0d14,#16163a);"><span class="theme-swatch-label">MIDNIGHT</span></div>
         <div class="theme-swatch" id="tsw-ocean" onclick="setAppTheme('ocean',this)" style="background:linear-gradient(160deg,#080e18,#0d2545);"><span class="theme-swatch-label">OCEAN</span></div>
         <div class="theme-swatch" id="tsw-forest" onclick="setAppTheme('forest',this)" style="background:linear-gradient(160deg,#080f0a,#0e2916);"><span class="theme-swatch-label">FOREST</span></div>
+        <div class="theme-swatch" id="tsw-ember" onclick="setAppTheme('ember',this)" style="background:linear-gradient(160deg,#110a08,#3d1a06);"><span class="theme-swatch-label">EMBER</span></div>
+        <div class="theme-swatch" id="tsw-dusk" onclick="setAppTheme('dusk',this)" style="background:linear-gradient(160deg,#100d14,#2e1040);"><span class="theme-swatch-label">DUSK</span></div>
+        <div class="theme-swatch" id="tsw-aurora" onclick="setAppTheme('aurora',this)" style="background:linear-gradient(160deg,#080f12,#072530);"><span class="theme-swatch-label">AURORA</span></div>
+        <div class="theme-swatch" id="tsw-rose" onclick="setAppTheme('rose',this)" style="background:linear-gradient(160deg,#120a0d,#38101e);"><span class="theme-swatch-label">ROSE</span></div>
+        <div class="theme-swatch" id="tsw-slate" onclick="setAppTheme('slate',this)" style="background:linear-gradient(160deg,#0a0c10,#141e33);"><span class="theme-swatch-label">SLATE</span></div>
       </div>
     </div>
     <div style="margin-bottom:14px;">
@@ -1116,7 +1130,7 @@ function openProfile(){
   var prof=retrieve("sm-profile",{name:"PLAYER",avatar:0,theme:"#3b82f6",dark:"#1d4ed8",crt:false});avatarIdx=prof.avatar||0;customAvatarData=prof.customAvatar||null;
   var el=document.getElementById("profile-avatar");
   if(customAvatarData){el.innerHTML='<img src="'+customAvatarData+'" style="width:100%;height:100%;object-fit:cover;"/>';}else{el.innerHTML=AVATARS[avatarIdx];}
-  document.getElementById("profile-name").value=prof.name||"";
+  document.getElementById("profile-name").value=prof.name||"";document.getElementById("profile-role").value=prof.role||"";
   const s=gdata.streak||calcStreakFromDates(gdata.activityDates||[]);
   document.getElementById("prof-streak").textContent=s;
   document.getElementById("prof-best").textContent=gdata.bestStreak||0;
@@ -1131,15 +1145,15 @@ function openProfile(){
 function cycleAvatar(){customAvatarData=null;avatarIdx=(avatarIdx+1)%AVATARS.length;document.getElementById("profile-avatar").innerHTML=AVATARS[avatarIdx];}
 function setTheme(color,dark,el){document.querySelectorAll(".color-swatch").forEach(s=>{s.classList.remove("active");s.style.borderColor="transparent";});el.classList.add("active");el.style.borderColor="white";applyTheme(color,dark);}
 function setAppTheme(name,el){document.querySelectorAll(".theme-swatch").forEach(s=>s.classList.remove("active"));if(el)el.classList.add("active");applyAppTheme(name);}
-function applyAppTheme(name){document.body.classList.remove("theme-midnight","theme-ocean","theme-forest");if(name&&name!=="default")document.body.classList.add("theme-"+name);}
+function applyAppTheme(name){document.body.classList.remove("theme-midnight","theme-ocean","theme-forest","theme-ember","theme-dusk","theme-aurora","theme-rose","theme-slate");if(name&&name!=="default")document.body.classList.add("theme-"+name);}
 function applyTheme(color,dark){var root=document.documentElement;root.style.setProperty("--accent",color);root.style.setProperty("--accent-dark",dark);root.style.setProperty("--accent-glow","rgba("+hexToRgb(color)+",.18)");}
 function hexToRgb(hex){return parseInt(hex.slice(1,3),16)+","+parseInt(hex.slice(3,5),16)+","+parseInt(hex.slice(5,7),16);}
 function setCRT(on){document.getElementById("crt-on").className="px-btn sm"+(on?"":" muted");document.getElementById("crt-off").className="px-btn sm"+(on?" muted":"");if(on)document.body.classList.remove("no-crt");else document.body.classList.add("no-crt");}
 function saveProfile(){
-  var name=document.getElementById("profile-name").value.trim()||"PLAYER";var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
-  var activeTsw=document.querySelector(".theme-swatch.active");var appTheme=activeTsw?activeTsw.id.replace("tsw-",""):"default";var prof={name:name.toUpperCase(),avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt,appTheme};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
+  var name=document.getElementById("profile-name").value.trim()||"PLAYER";var role=document.getElementById("profile-role").value.trim();var activeColor=document.querySelector(".color-swatch.active");var theme=activeColor?activeColor.dataset.color:"#9d4eff";var dark=activeColor?activeColor.dataset.dark:"#5a1fa8";var crt=!document.body.classList.contains("no-crt");
+  var activeTsw=document.querySelector(".theme-swatch.active");var appTheme=activeTsw?activeTsw.id.replace("tsw-",""):"default";var prof={name:name.toUpperCase(),role,avatar:avatarIdx,customAvatar:customAvatarData||null,theme,dark,crt,appTheme};store("sm-profile",prof);applyProfile(prof);closeModal("profile");showToast("PROFILE SAVED!");persist();
 }
-function applyProfile(prof){if(!prof)return;document.getElementById("header-name").textContent=prof.name||"PLAYER";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"/>';}else{ha.innerHTML=AVATARS[prof.avatar||0];}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);if(prof.viewMode)applyViewMode(prof.viewMode);if(prof.appTheme)applyAppTheme(prof.appTheme);}
+function applyProfile(prof){if(!prof)return;var n=prof.name||"PLAYER";document.getElementById("header-name").textContent=n;var roleEl=document.getElementById("header-role");if(roleEl)roleEl.textContent=prof.role||"";var ha=document.getElementById("header-avatar");if(prof.customAvatar){ha.innerHTML='<img src="'+prof.customAvatar+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>';}else{ha.textContent=n.charAt(0);}if(prof.theme)applyTheme(prof.theme,prof.dark||"#1d4ed8");setCRT(prof.crt===true);if(prof.viewMode)applyViewMode(prof.viewMode);if(prof.appTheme)applyAppTheme(prof.appTheme);}
 function loadProfile(){var prof=retrieve("sm-profile",null);if(prof)applyProfile(prof);}
 function applyViewMode(mode){
   document.body.classList.toggle("pc-mode",mode==="pc");
