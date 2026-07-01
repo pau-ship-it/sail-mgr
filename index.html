@@ -724,8 +724,8 @@ function startECG(score){
   let t=0;if(ecgAnim)cancelAnimationFrame(ecgAnim);
   function frame(){
     ctx.clearRect(0,0,W,H);drawGrid();ctx.shadowBlur=score<20?0:8;ctx.shadowColor=color;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin="round";ctx.lineCap="round";ctx.beginPath();
-    for(let x=0;x<W;x++){const raw=score<20?flatlineWave(x,t):ecgWave(x,t,amplitude,frequency);const y=Math.max(8,Math.min(H-8,H/2-raw));if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
-    if(score>=20){const dotX=(t*speed*60)%W;const dotY=Math.max(8,Math.min(H-8,H/2-ecgWave(dotX,t,amplitude,frequency)));ctx.beginPath();ctx.arc(dotX,dotY,3,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowBlur=12;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;}
+    const cy=H*0.65;for(let x=0;x<W;x++){const raw=score<20?flatlineWave(x,t):ecgWave(x,t,amplitude,frequency);const y=Math.max(8,Math.min(H-8,cy-raw));if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+    if(score>=20){const dotX=(t*speed*60)%W;const dotY=Math.max(8,Math.min(H-8,cy-ecgWave(dotX,t,amplitude,frequency)));ctx.beginPath();ctx.arc(dotX,dotY,3,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowBlur=12;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;}
     t+=0.016;ecgAnim=requestAnimationFrame(frame);
   }frame();
 }
