@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="config.js"></script>
 <style>
 :root{
@@ -241,8 +244,8 @@ select option{background:var(--bg1);}textarea{resize:none;}
   </div>
   <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:#2a5080;" id="boot-status">INITIALIZING...</div>
   <div id="boot-login-btns">
-    <button id="btn-google-login" onclick="window.driveSync&&window.driveSync.login()">&#9670; LOGIN WITH GOOGLE</button>
-    <button id="btn-offline-login" onclick="window.driveSync&&window.driveSync.continueOffline()">CONTINUE OFFLINE</button>
+    <button id="btn-google-login" onclick="window.fbSync&&window.fbSync.login()">&#9670; LOGIN WITH GOOGLE</button>
+    <button id="btn-offline-login" onclick="window.fbSync&&window.fbSync.continueOffline()">CONTINUE OFFLINE</button>
   </div>
 </div>
 
@@ -400,7 +403,17 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <button class="px-btn" onclick="exportData()" style="justify-content:center;">EXPORT JSON</button>
       <button class="px-btn muted" onclick="document.getElementById('import-file').click()" style="justify-content:center;">IMPORT JSON</button>
     </div>
-    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Google Drive sync active when logged in. Use EXPORT / IMPORT for manual backup.</div>
+    <div style="font-size:13px;color:var(--text3);line-height:1.6;">Data synced to Firebase. Use EXPORT / IMPORT for local backup.</div>
+  </div>
+
+  <!-- CEO DASHBOARD VIEW -->
+  <div class="view" id="view-ceo">
+    <div class="sec-hd">COMPANY OVERVIEW</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Read-only view of all departments. Refreshed on each visit.</div>
+    <div id="ceo-content"><div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading departments…</div></div>
+    <div style="margin-top:16px;">
+      <button class="px-btn" onclick="window.renderCEO&&renderCEO()" style="width:100%;justify-content:center;">REFRESH</button>
+    </div>
   </div>
 </div>
 
@@ -424,6 +437,10 @@ select option{background:var(--bg1);}textarea{resize:none;}
   <button class="nav-tab" onclick="nav('hours',this)" style="position:relative;">
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="16" width="3" height="4" fill="currentColor"/><rect x="7" y="12" width="3" height="8" fill="currentColor"/><rect x="12" y="7" width="3" height="13" fill="currentColor"/><rect x="17" y="3" width="3" height="17" fill="currentColor"/></svg>
     STATS<span class="nav-dot" id="hours-dot" style="display:none;"></span>
+  </button>
+  <button class="nav-tab" id="nav-ceo" onclick="nav('ceo',this)" style="display:none;">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="9" y="2" width="4" height="4" fill="currentColor"/><rect x="2" y="6" width="4" height="4" fill="currentColor"/><rect x="16" y="6" width="4" height="4" fill="currentColor"/><polygon points="4,10 11,6 18,10 16,18 6,18" fill="currentColor" opacity=".3"/><rect x="4" y="10" width="14" height="2" fill="currentColor"/><rect x="5" y="14" width="12" height="2" fill="currentColor"/><rect x="3" y="18" width="16" height="2" fill="currentColor"/></svg>
+    CEO
   </button>
 </div>
 </div>
@@ -659,7 +676,7 @@ function persist(){
   try{localStorage.setItem('sm-date',new Date().toISOString());}catch(_){}
   window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
   showSaved();
-  if(window.driveSync&&!window._skipDriveSync)window.driveSync.triggerSave();
+  if(window.fbSync&&!window._skipFbSync)window.fbSync.triggerSave();
 }
 function showSaved(){const el=document.getElementById("save-status");el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1500);}
 function todayStr(){return new Date().toISOString().split("T")[0];}
@@ -847,6 +864,7 @@ function nav(id,el){
   if(id!=="health")stopECG();
   if(id==="daily")renderDaily();if(id==="calendar")renderCal();if(id==="projects")renderProjects(projFilter);
   if(id==="health")renderHealth();if(id==="hours"){document.getElementById("hours-dot").style.display="none";renderStats();}
+  if(id==="ceo"&&window.renderCEO)renderCEO();
 }
 function renderDaily(){
   document.getElementById("m-total").textContent=pad(projects.length);document.getElementById("m-prod").textContent=pad(projects.filter(p=>p.status==="produccion").length);document.getElementById("m-crit").textContent=pad(projects.filter(p=>p.status==="critico").length);document.getElementById("m-gest").textContent=pad(projects.filter(p=>p.status==="gestion"||p.status==="listo").length);
@@ -1256,34 +1274,45 @@ const now=new Date();if(now.getHours()>=14&&now.getMinutes()>=45)document.getEle
 loadProfile();runBoot();updateStreakDisplay();renderDaily();
 </script>
 <script>
-const FILE_NAME='sail-mgr-data.json';const SCOPE='https://www.googleapis.com/auth/drive.appdata';const STORAGE_KEY_TOKEN='sail-drive-token';const STORAGE_KEY_USER='sail-drive-user';const SAVE_DEBOUNCE_MS=1200;
-let tokenClient=null,accessToken=null,fileId=null,saveTimer=null,isSyncing=false,isLoggedIn=false;
+(function(){
+const cfg=(window.SAIL_CONFIG||{}).FIREBASE;
+if(!cfg){console.error('[FBSync] No Firebase config found in SAIL_CONFIG');return;}
+firebase.initializeApp(cfg);
+const auth=firebase.auth();
+const db=firebase.database();
+const SAVE_DEBOUNCE=2000;
+let currentUser=null,saveTimer=null;
+
 function setSyncStatus(state){const ind=document.getElementById('sync-indicator');if(!ind)return;const icon=ind.querySelector('.sync-icon'),label=ind.querySelector('.sync-label');ind.className='sync-indicator sync-'+state;const map={idle:{i:'◈',l:'OFFLINE'},syncing:{i:'⟳',l:'SYNCING…'},synced:{i:'✓',l:'SYNCED'},error:{i:'✗',l:'ERROR'}};const s=map[state]||map.idle;if(icon)icon.textContent=s.i;if(label)label.textContent=s.l;}
-function setUserBadge(profile){const badge=document.getElementById('user-badge'),avatar=document.getElementById('user-avatar'),name=document.getElementById('user-name');if(!badge)return;if(profile){badge.classList.remove('hidden');if(avatar)avatar.src=profile.picture||'';if(name)name.textContent=(profile.given_name||profile.name||'').toUpperCase();const lb=document.getElementById('btn-logout');if(lb)lb.classList.remove('hidden');}else{badge.classList.add('hidden');}}
-function saveToken(t){accessToken=t;try{localStorage.setItem(STORAGE_KEY_TOKEN,t);}catch(_){}}
-function loadToken(){try{return localStorage.getItem(STORAGE_KEY_TOKEN);}catch(_){return null;}}
-function clearToken(){accessToken=null;fileId=null;try{localStorage.removeItem(STORAGE_KEY_TOKEN);}catch(_){}try{localStorage.removeItem(STORAGE_KEY_USER);}catch(_){}}
-function saveUserProfile(p){try{localStorage.setItem(STORAGE_KEY_USER,JSON.stringify(p));}catch(_){}}
-function loadUserProfile(){try{const s=localStorage.getItem(STORAGE_KEY_USER);return s?JSON.parse(s):null;}catch(_){return null;}}
-async function driveRequest(method,url,body,isJson=true){if(!accessToken)throw new Error('No access token');const headers={Authorization:'Bearer '+accessToken};if(isJson&&body)headers['Content-Type']='application/json';const res=await fetch(url,{method,headers,body:body?(isJson?JSON.stringify(body):body):undefined});if(res.status===401)throw new Error('AUTH_EXPIRED');if(!res.ok)throw new Error('Drive error '+res.status);return res.status===204?null:res.json();}
-async function findFile(){const data=await driveRequest('GET',`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id,name,modifiedTime)&pageSize=5`);return((data&&data.files)||[]).length?(data.files)[0]:null;}
-async function readFile(id){return driveRequest('GET',`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);}
-async function createFile(content){const meta={name:FILE_NAME,parents:['appDataFolder']};const boundary='saildrive_boundary';const body=`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`+JSON.stringify(meta)+`\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`+JSON.stringify(content)+`\r\n--${boundary}--`;const res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':`multipart/related; boundary=${boundary}`},body});if(!res.ok)throw new Error('Create failed '+res.status);return res.json();}
-async function updateFile(id,content){const res=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(content)});if(res.status===401)throw new Error('AUTH_EXPIRED');if(!res.ok)throw new Error('Update failed '+res.status);}
-function buildPayload(){const p=window.projects||[],t=window.todos||[],h=window.hourEntries||[],g=window.gdata||{};const prof=(()=>{try{return JSON.parse(localStorage.getItem('sm-profile')||'null');}catch(_){return null;}})();return{v:2,date:new Date().toISOString(),projects:p,todos:t,hourEntries:h,gdata:g,profile:prof};}
-async function loadFromDrive(){setSyncStatus('syncing');try{const file=await findFile();if(!file){const created=await createFile(buildPayload());fileId=created.id;setSyncStatus('synced');return null;}fileId=file.id;const data=await readFile(fileId);setSyncStatus('synced');const localDateStr=(()=>{try{return localStorage.getItem('sm-date');}catch(_){return null;}})();const localDate=localDateStr?new Date(localDateStr):new Date(0);const driveDate=(data&&data.date)?new Date(data.date):new Date(0);console.log('[DriveSync] local:',localDateStr,'| drive:',data&&data.date);if(localDate>driveDate){console.log('[DriveSync] Local newer → pushing to Drive');await updateFile(fileId,buildPayload());return null;}return data;}catch(err){console.error('[DriveSync] loadFromDrive error:',err);setSyncStatus('error');if(err.message==='AUTH_EXPIRED')refreshToken();return null;}}
-async function doSave(){if(!isLoggedIn||!accessToken)return;if(isSyncing){scheduleSave();return;}isSyncing=true;setSyncStatus('syncing');try{const payload=buildPayload();if(!fileId){const file=await findFile();if(file){fileId=file.id;}else{const created=await createFile(payload);fileId=created.id;setSyncStatus('synced');return;}}await updateFile(fileId,payload);setSyncStatus('synced');}catch(err){console.error('[DriveSync] save error:',err);setSyncStatus('error');if(err.message==='AUTH_EXPIRED')refreshToken();}finally{isSyncing=false;}}
-function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(doSave,SAVE_DEBOUNCE_MS);}
-function refreshToken(){if(!tokenClient)return;console.log('[DriveSync] Refreshing token…');tokenClient.requestAccessToken({prompt:''});}
-function applyDriveData(data){if(!data)return;try{if(typeof window.applyData==='function'){window.applyData(data);}else{if(Array.isArray(data.projects))window.projects=data.projects.map(p=>({...p,history:p.history||[]}));if(Array.isArray(data.todos))window.todos=data.todos;if(Array.isArray(data.hourEntries))window.hourEntries=data.hourEntries;if(data.gdata)window.gdata=data.gdata;}if(data.profile){try{localStorage.setItem('sm-profile',JSON.stringify(data.profile));}catch(_){}if(typeof window.applyProfile==='function')window.applyProfile(data.profile);}if(typeof window.persist==='function'){window._skipDriveSync=true;window.persist();window._skipDriveSync=false;}if(typeof window.renderDaily==='function')window.renderDaily();if(typeof window.updateStreakDisplay==='function')window.updateStreakDisplay();console.log('[DriveSync] Data applied from Drive ✓');}catch(err){console.error('[DriveSync] applyDriveData error:',err);}}
-function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s steps(4)';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';},450);}
-function waitForGIS(){return new Promise(resolve=>{if(window.google&&window.google.accounts){resolve();return;}const iv=setInterval(()=>{if(window.google&&window.google.accounts){clearInterval(iv);resolve();}},100);});}
-async function fetchUserInfo(token){try{const res=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+token}});if(!res.ok)return null;return res.json();}catch(_){return null;}}
-async function initGIS(){const clientId=(window.SAIL_CONFIG||{}).GOOGLE_CLIENT_ID;if(!clientId||clientId.includes('YOUR_CLIENT_ID')){console.warn('[DriveSync] No Google Client ID configured');return;}await waitForGIS();tokenClient=window.google.accounts.oauth2.initTokenClient({client_id:clientId,scope:SCOPE,callback:async(tokenResponse)=>{if(tokenResponse.error){console.error('[DriveSync] Token error:',tokenResponse.error);if(!isLoggedIn)setSyncStatus('idle');return;}saveToken(tokenResponse.access_token);isLoggedIn=true;const profile=await fetchUserInfo(tokenResponse.access_token);if(profile){saveUserProfile(profile);setUserBadge(profile);}const driveData=await loadFromDrive();if(driveData)applyDriveData(driveData);hideBoot();},});const wasLoggedIn=!!loadToken();if(wasLoggedIn){const savedProfile=loadUserProfile();if(savedProfile)setUserBadge(savedProfile);setSyncStatus('syncing');tokenClient.requestAccessToken({prompt:'',hint:savedProfile&&savedProfile.email?savedProfile.email:''});}};
-window.driveSync={triggerSave(){if(isLoggedIn&&!window._skipDriveSync)scheduleSave();},login(){if(!tokenClient){alert('Google Client ID not configured.');return;}tokenClient.requestAccessToken({prompt:'consent'});},continueOffline(){hideBoot();setSyncStatus('idle');},logout(){if(window.google&&window.google.accounts&&window.google.accounts.oauth2)window.google.accounts.oauth2.revoke(accessToken,()=>{});clearToken();isLoggedIn=false;setUserBadge(null);setSyncStatus('idle');location.reload();},get isLoggedIn(){return isLoggedIn;}};
-window.addEventListener('online',()=>{if(isLoggedIn){setSyncStatus('syncing');doSave();}});
-window.addEventListener('offline',()=>{if(isLoggedIn)setSyncStatus('error');});
-initGIS();
+
+function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';},420);}
+
+function buildPayload(){const prof=(()=>{try{return JSON.parse(localStorage.getItem('sm-profile')||'null');}catch(_){return null;}})();return{v:2,date:new Date().toISOString(),projects:window.projects||[],todos:window.todos||[],hourEntries:window.hourEntries||[],gdata:window.gdata||{},profile:prof};}
+
+function applyFbData(data){if(!data)return;try{if(typeof window.applyData==='function'){window.applyData(data);}else{if(Array.isArray(data.projects))window.projects=data.projects.map(p=>({...p,history:p.history||[]}));if(Array.isArray(data.todos))window.todos=data.todos;if(Array.isArray(data.hourEntries))window.hourEntries=data.hourEntries;if(data.gdata)window.gdata=data.gdata;}if(data.profile){try{localStorage.setItem('sm-profile',JSON.stringify(data.profile));}catch(_){}if(typeof window.applyProfile==='function')window.applyProfile(data.profile);}if(typeof window.persist==='function'){window._skipFbSync=true;window.persist();window._skipFbSync=false;}if(typeof window.renderDaily==='function')window.renderDaily();if(typeof window.updateStreakDisplay==='function')window.updateStreakDisplay();console.log('[FBSync] Data applied ✓');}catch(err){console.error('[FBSync] applyFbData error:',err);}}
+
+async function doSave(){if(!currentUser)return;setSyncStatus('syncing');try{const payload=buildPayload();await db.ref('departments/'+currentUser.uid+'/data').set(payload);const prof=payload.profile||{};await db.ref('departments/'+currentUser.uid+'/profile').set({name:prof.name||'Unknown',role:prof.role||'',email:currentUser.email,lastSeen:new Date().toISOString()});setSyncStatus('synced');}catch(err){console.error('[FBSync] save error:',err);setSyncStatus('error');}}
+
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(doSave,SAVE_DEBOUNCE);}
+
+function calcHealthScore(projs){if(!projs||!projs.length)return 100;const now=new Date();const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');if(!active.length)return 100;let score=100;const noDeadline=active.filter(p=>p.status!=='listo'&&!p.deadline).length;score-=Math.min(noDeadline*8,30);const expired=active.filter(p=>p.deadline&&p.status!=='listo'&&new Date(p.deadline)<now).length;score-=Math.min(expired*15,40);const critico=active.filter(p=>p.status==='critico').length;score-=Math.min(critico*5,20);return Math.max(0,Math.min(100,score));}
+
+window.renderCEO=async function(){const el=document.getElementById('ceo-content');if(!el)return;el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading departments…</div>';try{const snap=await db.ref('departments').get();if(!snap.exists()){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">No departments connected yet.</div>';return;}const depts=snap.val();const ceoUid=currentUser?currentUser.uid:null;el.innerHTML=Object.entries(depts).filter(([uid])=>uid!==ceoUid).map(([uid,dept])=>{const prof=dept.profile||{};const data=dept.data||{};const projs=data.projects||[];const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');const critical=active.filter(p=>p.status==='critico').length;const upcoming=active.filter(p=>{if(!p.deadline)return false;const d=Math.ceil((new Date(p.deadline)-new Date())/86400000);return d>=0&&d<=7;}).length;const score=calcHealthScore(projs);const scoreCol=score>=75?'var(--green)':score>=45?'var(--amber)':'var(--red)';const lastSeen=prof.lastSeen?new Date(prof.lastSeen).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div><div style="font-size:14px;font-weight:700;color:var(--text1);">${prof.name||'Unknown'}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${prof.role||''}</div></div><div style="text-align:right;"><div style="font-size:26px;font-weight:800;color:${scoreCol};line-height:1;">${score}%</div><div style="font-size:9px;color:${scoreCol};text-transform:uppercase;">${score>=75?'STABLE':score>=45?'WARNING':'CRITICAL'}</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;"><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Active</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${active.length}</div></div><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Urgent</div><div style="font-size:18px;font-weight:700;color:${critical>0?'var(--red)':'var(--text1)'};">${critical}</div></div><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Due 7d</div><div style="font-size:18px;font-weight:700;color:${upcoming>0?'var(--amber)':'var(--text1)'};">${upcoming}</div></div></div><div style="font-size:10px;color:var(--text3);">Last sync: ${lastSeen} · ${prof.email||''}</div></div>`;}).join('')||'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">No other departments found.</div>';}catch(err){console.error('[FBSync] CEO load error:',err);el.innerHTML='<div style="color:var(--red);font-size:13px;">Error loading departments. Check permissions.</div>';}};
+
+auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;if(ceoEmail&&user.email===ceoEmail){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();const localDateStr=localStorage.getItem('sm-date');const localDate=localDateStr?new Date(localDateStr):new Date(0);const fbDate=fbData.date?new Date(fbData.date):new Date(0);if(localDate>fbDate){await doSave();}else{applyFbData(fbData);}}else{await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();});
+
+window.fbSync={
+  triggerSave(){if(currentUser&&!window._skipFbSync)scheduleSave();},
+  login(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(err=>console.error('[FBSync] login error:',err));},
+  continueOffline(){hideBoot();setSyncStatus('idle');},
+  logout(){auth.signOut().then(()=>location.reload());},
+  get isLoggedIn(){return!!currentUser;},
+  get currentUser(){return currentUser;}
+};
+
+window.addEventListener('online',()=>{if(currentUser)doSave();});
+window.addEventListener('offline',()=>{if(currentUser)setSyncStatus('error');});
+})();
 </script>
 </body>
 </html>

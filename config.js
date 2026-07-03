@@ -1,8 +1,13 @@
-// ╔══════════════════════════════════════════════════════╗
-// ║  SAIL.MGR — Google OAuth Configuration              ║
-// ║  Replace YOUR_CLIENT_ID with your actual Client ID  ║
-// ║  from Google Cloud Console                          ║
-// ╚══════════════════════════════════════════════════════╝
 window.SAIL_CONFIG = {
-  GOOGLE_CLIENT_ID: '137718963242-knsctogidkrs7l3nm3ojoggr2ekfk78c.apps.googleusercontent.com'
+  GOOGLE_CLIENT_ID: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+  CEO_EMAIL: '',  // Set this to the CEO's Google email, e.g. 'ceo@company.com'
+  FIREBASE: {
+    apiKey: "AIzaSyDclRSyehYiFGQtnXs0DEOE1F5MxxKKQlU",
+    authDomain: "sail-mgr.firebaseapp.com",
+    databaseURL: "https://sail-mgr-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "sail-mgr",
+    storageBucket: "sail-mgr.firebasestorage.app",
+    messagingSenderId: "1027428787199",
+    appId: "1:1027428787199:web:f164f37ad571c4af837dca"
+  }
 };
