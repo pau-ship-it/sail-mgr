@@ -1,6 +1,6 @@
 window.SAIL_CONFIG = {
-  GOOGLE_CLIENT_ID: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
-  CEO_EMAIL: '',  pau@onepalma.net
+  GOOGLE_CLIENT_ID: 'pau@onepalma.com',
+  CEO_EMAIL: '',
   FIREBASE: {
     apiKey: "AIzaSyDclRSyehYiFGQtnXs0DEOE1F5MxxKKQlU",
     authDomain: "sail-mgr.firebaseapp.com",
