@@ -408,9 +408,23 @@ select option{background:var(--bg1);}textarea{resize:none;}
 
   <!-- CEO DASHBOARD VIEW -->
   <div class="view" id="view-ceo">
-    <div class="sec-hd">COMPANY OVERVIEW</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Read-only view of all departments. Refreshed on each visit.</div>
-    <div id="ceo-content"><div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading departments…</div></div>
+    <div class="sec-hd">DEPARTMENTS</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Manage which managers have access. They log in with their Google account.</div>
+
+    <!-- Add department form -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:10px;">ADD DEPARTMENT</div>
+      <input id="ceo-dept-name" type="text" placeholder="Department name..." maxlength="40" style="margin-bottom:8px;"/>
+      <input id="ceo-dept-email" type="email" placeholder="Manager email (Google account)..." maxlength="80" style="margin-bottom:10px;"/>
+      <button class="px-btn" style="width:100%;justify-content:center;" onclick="ceoAddDept()">+ ADD</button>
+    </div>
+
+    <!-- Configured departments list -->
+    <div id="ceo-dept-list" style="margin-bottom:20px;"></div>
+
+    <div class="sec-hd" style="margin-top:4px;">COMPANY OVERVIEW</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Live data from connected departments.</div>
+    <div id="ceo-content"><div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading…</div></div>
     <div style="margin-top:16px;">
       <button class="px-btn" onclick="window.renderCEO&&renderCEO()" style="width:100%;justify-content:center;">REFRESH</button>
     </div>
@@ -683,6 +697,7 @@ function persist(){
   store("sm-p",projects);store("sm-t",todos);store("sm-h",hourEntries);store("sm-g",gdata);
   try{localStorage.setItem('sm-date',new Date().toISOString());}catch(_){}
   window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
+  try{const today=new Date().toISOString().split('T')[0];const bk=localStorage.getItem('sm-backup-date');if(bk!==today){localStorage.setItem('sm-backup-p',JSON.stringify(projects));localStorage.setItem('sm-backup-date',today);}}catch(_){}
   showSaved();
   if(window.fbSync&&!window._skipFbSync)window.fbSync.triggerSave();
 }
@@ -1324,9 +1339,115 @@ function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(doSave,SAVE
 
 function calcHealthScore(projs){if(!projs||!projs.length)return 100;const now=new Date();const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');if(!active.length)return 100;let score=100;const noDeadline=active.filter(p=>p.status!=='listo'&&!p.deadline).length;score-=Math.min(noDeadline*8,30);const expired=active.filter(p=>p.deadline&&p.status!=='listo'&&new Date(p.deadline)<now).length;score-=Math.min(expired*15,40);const critico=active.filter(p=>p.status==='critico').length;score-=Math.min(critico*5,20);return Math.max(0,Math.min(100,score));}
 
-window.renderCEO=async function(){const el=document.getElementById('ceo-content');if(!el)return;el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading departments…</div>';try{const snap=await db.ref('departments').get();if(!snap.exists()){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">No departments connected yet.</div>';return;}const depts=snap.val();const ceoUid=currentUser?currentUser.uid:null;el.innerHTML=Object.entries(depts).filter(([uid])=>uid!==ceoUid).map(([uid,dept])=>{const prof=dept.profile||{};const data=dept.data||{};const projs=data.projects||[];const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');const critical=active.filter(p=>p.status==='critico').length;const upcoming=active.filter(p=>{if(!p.deadline)return false;const d=Math.ceil((new Date(p.deadline)-new Date())/86400000);return d>=0&&d<=7;}).length;const score=calcHealthScore(projs);const scoreCol=score>=75?'var(--green)':score>=45?'var(--amber)':'var(--red)';const lastSeen=prof.lastSeen?new Date(prof.lastSeen).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div><div style="font-size:14px;font-weight:700;color:var(--text1);">${prof.name||'Unknown'}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${prof.role||''}</div></div><div style="text-align:right;"><div style="font-size:26px;font-weight:800;color:${scoreCol};line-height:1;">${score}%</div><div style="font-size:9px;color:${scoreCol};text-transform:uppercase;">${score>=75?'STABLE':score>=45?'WARNING':'CRITICAL'}</div></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;"><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Active</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${active.length}</div></div><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Urgent</div><div style="font-size:18px;font-weight:700;color:${critical>0?'var(--red)':'var(--text1)'};">${critical}</div></div><div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;">Due 7d</div><div style="font-size:18px;font-weight:700;color:${upcoming>0?'var(--amber)':'var(--text1)'};">${upcoming}</div></div></div><div style="font-size:10px;color:var(--text3);">Last sync: ${lastSeen} · ${prof.email||''}</div></div>`;}).join('')||'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">No other departments found.</div>';}catch(err){console.error('[FBSync] CEO load error:',err);el.innerHTML='<div style="color:var(--red);font-size:13px;">Error loading departments. Check permissions.</div>';}};
+window.ceoAddDept=async function(){
+  const name=document.getElementById('ceo-dept-name').value.trim();
+  const email=document.getElementById('ceo-dept-email').value.trim().toLowerCase();
+  if(!name||!email){showToast('FILL NAME AND EMAIL');return;}
+  if(!email.includes('@')){showToast('INVALID EMAIL');return;}
+  const key=email.replace(/[.#$[\]]/g,'_');
+  await db.ref('config/departments/'+key).set({name,email,addedAt:new Date().toISOString()});
+  document.getElementById('ceo-dept-name').value='';
+  document.getElementById('ceo-dept-email').value='';
+  showToast('DEPARTMENT ADDED');
+  renderCEO();
+};
 
-auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;if(ceoEmail&&user.email===ceoEmail){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();const localDateStr=localStorage.getItem('sm-date');const localDate=localDateStr?new Date(localDateStr):new Date(0);const fbDate=fbData.date?new Date(fbData.date):new Date(0);const localProjects=(window.projects||[]).length;const fbProjects=(fbData.projects||[]).length;const useLocal=localDate>=fbDate||localProjects>fbProjects;if(useLocal){await doSave();}else{applyFbData(fbData);}}else{await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();});
+window.ceoRemoveDept=async function(key){
+  if(!confirm('Remove this department?'))return;
+  await db.ref('config/departments/'+key).remove();
+  showToast('DEPARTMENT REMOVED');
+  renderCEO();
+};
+
+window.renderCEO=async function(){
+  const listEl=document.getElementById('ceo-dept-list');
+  const el=document.getElementById('ceo-content');
+  if(!el)return;
+  el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center;">Loading…</div>';
+  if(listEl)listEl.innerHTML='';
+  try{
+    const [cfgSnap,deptsSnap]=await Promise.all([
+      db.ref('config/departments').get(),
+      db.ref('departments').get()
+    ]);
+    const configured=cfgSnap.exists()?cfgSnap.val():{};
+    const connected=deptsSnap.exists()?deptsSnap.val():{};
+    const ceoUid=currentUser?currentUser.uid:null;
+
+    // Build email→uid map from connected managers
+    const emailToUid={};
+    Object.entries(connected).filter(([uid])=>uid!==ceoUid).forEach(([uid,dept])=>{
+      const email=(dept.profile||{}).email;
+      if(email)emailToUid[email.toLowerCase()]=uid;
+    });
+
+    // Render configured department list
+    if(listEl){
+      const keys=Object.keys(configured);
+      if(keys.length===0){
+        listEl.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0;">No departments configured yet.</div>';
+      } else {
+        listEl.innerHTML=keys.map(key=>{
+          const d=configured[key];
+          const uid=emailToUid[d.email];
+          const online=!!uid;
+          return`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text1);">${d.name}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px;">${d.email}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${online?'rgba(70,167,88,.15)':'rgba(100,116,139,.1)'};color:${online?'var(--green)':'var(--text3)'};">${online?'CONNECTED':'PENDING'}</span>
+              <button onclick="ceoRemoveDept('${key}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;" title="Remove">&#x2715;</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Render overview — only configured+connected departments
+    const configuredEmails=new Set(Object.values(configured).map(d=>d.email.toLowerCase()));
+    const overviewEntries=Object.entries(connected).filter(([uid])=>uid!==ceoUid).filter(([uid,dept])=>{
+      const email=((dept.profile||{}).email||'').toLowerCase();
+      return configuredEmails.size===0||configuredEmails.has(email);
+    });
+
+    if(overviewEntries.length===0){
+      el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">No departments connected yet.</div>';
+    } else {
+      el.innerHTML=overviewEntries.map(([uid,dept])=>{
+        const prof=dept.profile||{};
+        const data=dept.data||{};
+        const projs=data.projects||[];
+        const cfgEntry=Object.values(configured).find(d=>d.email.toLowerCase()===(prof.email||'').toLowerCase());
+        const displayName=cfgEntry?cfgEntry.name:(prof.name||'Unknown');
+        const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');
+        const critical=active.filter(p=>p.status==='critico').length;
+        const upcoming=active.filter(p=>{if(!p.deadline)return false;const d=Math.ceil((new Date(p.deadline)-new Date())/86400000);return d>=0&&d<=7;}).length;
+        const score=calcHealthScore(projs);
+        const scoreCol=score>=75?'var(--green)':score>=45?'var(--amber)':'var(--red)';
+        const lastSeen=prof.lastSeen?new Date(prof.lastSeen).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+        return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div><div style="font-size:14px;font-weight:700;color:var(--text1);">${displayName}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${prof.role||prof.email||''}</div></div>
+            <div style="text-align:right;"><div style="font-size:26px;font-weight:800;color:${scoreCol};line-height:1;">${score}%</div><div style="font-size:9px;color:${scoreCol};text-transform:uppercase;">${score>=75?'STABLE':score>=45?'WARNING':'CRITICAL'}</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">ACTIVE</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${active.length}</div></div>
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">URGENT</div><div style="font-size:18px;font-weight:700;color:${critical>0?'var(--red)':'var(--text1)'};">${critical}</div></div>
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">DUE 7D</div><div style="font-size:18px;font-weight:700;color:${upcoming>0?'var(--amber)':'var(--text1)'};">${upcoming}</div></div>
+          </div>
+          <div style="font-size:10px;color:var(--text3);">Last sync: ${lastSeen}</div>
+        </div>`;
+      }).join('');
+    }
+  }catch(err){
+    console.error('[FBSync] CEO load error:',err);
+    el.innerHTML='<div style="color:var(--red);font-size:13px;">Error loading. Check Firebase permissions.</div>';
+  }
+};
+
+auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;const isCEO=ceoEmail&&user.email===ceoEmail;if(isCEO){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';document.querySelectorAll('.nav-tab:not(#nav-ceo)').forEach(t=>t.style.display='none');}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();const localDateStr=localStorage.getItem('sm-date');const localDate=localDateStr?new Date(localDateStr):new Date(0);const fbDate=fbData.date?new Date(fbData.date):new Date(0);const localProjects=(window.projects||[]).length;const fbProjects=(fbData.projects||[]).length;const useLocal=localDate>=fbDate||localProjects>fbProjects;if(useLocal){await doSave();}else{applyFbData(fbData);}}else{if(!isCEO)await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();if(isCEO){nav('ceo',document.getElementById('nav-ceo'));}});
 
 window.forceUploadToFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');await doSave();setSyncStatus('synced');showToast('DATA UPLOADED TO CLOUD');}catch(e){setSyncStatus('error');alert('Upload error: '+e.message);}};
 window.forceDownloadFromFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');const snap=await db.ref('departments/'+currentUser.uid+'/data').get();if(!snap.exists()){alert('No data in cloud');setSyncStatus('idle');return;}applyFbData(snap.val());setSyncStatus('synced');showToast('DATA LOADED FROM CLOUD');}catch(e){setSyncStatus('error');alert('Download error: '+e.message);}};
