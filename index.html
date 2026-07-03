@@ -1456,7 +1456,7 @@ window.fbSync={
   triggerSave(){if(currentUser&&!window._skipFbSync)scheduleSave();},
   login(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(err=>console.error('[FBSync] login error:',err));},
   continueOffline(){hideBoot();setSyncStatus('idle');},
-  logout(){auth.signOut().then(()=>{localStorage.removeItem('sm-profile');localStorage.removeItem('sm-date');location.reload();});},
+  logout(){(async()=>{if(currentUser){try{await doSave();}catch(_){}}localStorage.removeItem('sm-profile');await auth.signOut();location.reload();})();},
   get isLoggedIn(){return!!currentUser;},
   get currentUser(){return currentUser;}
 };
