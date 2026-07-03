@@ -1261,7 +1261,7 @@ function setViewMode(mode){
 }
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
-window.persist=persist;window.renderDaily=renderDaily;window.updateStreakDisplay=updateStreakDisplay;window.applyProfile=applyProfile;
+window.persist=persist;window.renderDaily=renderDaily;window.updateStreakDisplay=updateStreakDisplay;window.applyProfile=applyProfile;window.renderProjects=function(f){renderProjects(f);};window.renderTodos=renderTodos;
 window.applyData=function(data){
   if(Array.isArray(data.projects))projects=data.projects.map(p=>({...p,history:p.history||[]}));
   if(Array.isArray(data.todos))todos=data.todos;
@@ -1287,9 +1287,27 @@ function setSyncStatus(state){const ind=document.getElementById('sync-indicator'
 
 function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';},420);}
 
-function buildPayload(){const prof=(()=>{try{return JSON.parse(localStorage.getItem('sm-profile')||'null');}catch(_){return null;}})();return{v:2,date:new Date().toISOString(),projects:window.projects||[],todos:window.todos||[],hourEntries:window.hourEntries||[],gdata:window.gdata||{},profile:prof};}
+function readLocal(key,def){try{const s=localStorage.getItem(key);return s?JSON.parse(s):def;}catch(_){return def;}}
+function buildPayload(){
+  const prof=(()=>{try{return JSON.parse(localStorage.getItem('sm-profile')||'null');}catch(_){return null;}})();
+  const projects=(window.projects&&window.projects.length)?window.projects:readLocal('sm-p',[]);
+  const todos=(window.todos&&window.todos.length)?window.todos:readLocal('sm-t',[]);
+  const hourEntries=(window.hourEntries&&window.hourEntries.length)?window.hourEntries:readLocal('sm-h',[]);
+  const gdata=window.gdata&&(window.gdata.streak||window.gdata.completed)?window.gdata:readLocal('sm-g',{streak:0,bestStreak:0,lastActivity:'',activityDates:[],completed:0});
+  return{v:2,date:new Date().toISOString(),projects,todos,hourEntries,gdata,profile:prof};
+}
 
-function applyFbData(data){if(!data)return;try{if(typeof window.applyData==='function'){window.applyData(data);}else{if(Array.isArray(data.projects))window.projects=data.projects.map(p=>({...p,history:p.history||[]}));if(Array.isArray(data.todos))window.todos=data.todos;if(Array.isArray(data.hourEntries))window.hourEntries=data.hourEntries;if(data.gdata)window.gdata=data.gdata;}if(data.profile){try{localStorage.setItem('sm-profile',JSON.stringify(data.profile));}catch(_){}if(typeof window.applyProfile==='function')window.applyProfile(data.profile);}if(typeof window.persist==='function'){window._skipFbSync=true;window.persist();window._skipFbSync=false;}if(typeof window.renderDaily==='function')window.renderDaily();if(typeof window.updateStreakDisplay==='function')window.updateStreakDisplay();console.log('[FBSync] Data applied ✓');}catch(err){console.error('[FBSync] applyFbData error:',err);}}
+function applyFbData(data){if(!data)return;try{
+  if(typeof window.applyData==='function'){window.applyData(data);}
+  else{if(Array.isArray(data.projects))window.projects=data.projects.map(p=>({...p,history:p.history||[]}));if(Array.isArray(data.todos))window.todos=data.todos;if(Array.isArray(data.hourEntries))window.hourEntries=data.hourEntries;if(data.gdata)window.gdata=data.gdata;}
+  if(data.profile){try{localStorage.setItem('sm-profile',JSON.stringify(data.profile));}catch(_){}if(typeof window.applyProfile==='function')window.applyProfile(data.profile);}
+  if(typeof window.persist==='function'){window._skipFbSync=true;window.persist();window._skipFbSync=false;}
+  if(typeof window.renderProjects==='function')window.renderProjects();
+  if(typeof window.renderTodos==='function')window.renderTodos();
+  if(typeof window.renderDaily==='function')window.renderDaily();
+  if(typeof window.updateStreakDisplay==='function')window.updateStreakDisplay();
+  console.log('[FBSync] Data applied ✓');
+}catch(err){console.error('[FBSync] applyFbData error:',err);}}
 
 async function doSave(){if(!currentUser)return;setSyncStatus('syncing');try{const payload=buildPayload();await db.ref('departments/'+currentUser.uid+'/data').set(payload);const prof=payload.profile||{};await db.ref('departments/'+currentUser.uid+'/profile').set({name:prof.name||'Unknown',role:prof.role||'',email:currentUser.email,lastSeen:new Date().toISOString()});setSyncStatus('synced');}catch(err){console.error('[FBSync] save error:',err);setSyncStatus('error');}}
 
