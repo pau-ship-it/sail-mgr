@@ -1130,16 +1130,16 @@ function calClick(ds){
 function addWorkBlock(ds){
   const sel=document.getElementById("wb-select-"+ds);
   if(!sel||!sel.value)return;
-  const id=sel.value;
+  const id=String(sel.value);
   if(!workBlocks[ds])workBlocks[ds]=[];
   if(workBlocks[ds].length>=2){showToast("MAX 2 PROJECTS PER DAY");return;}
-  if(!workBlocks[ds].includes(id))workBlocks[ds].push(id);
+  if(!workBlocks[ds].map(String).includes(id))workBlocks[ds].push(id);
   window.workBlocks=workBlocks;
   persist();renderCal();calClick(ds);
 }
 function removeWorkBlock(ds,id){
   if(!workBlocks[ds])return;
-  workBlocks[ds]=workBlocks[ds].filter(x=>x!==id);
+  workBlocks[ds]=workBlocks[ds].filter(x=>String(x)!==String(id));
   if(!workBlocks[ds].length)delete workBlocks[ds];
   window.workBlocks=workBlocks;
   persist();renderCal();calClick(ds);
