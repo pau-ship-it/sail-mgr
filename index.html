@@ -226,7 +226,6 @@ select option{background:var(--bg1);}textarea{resize:none;}
 .sync-idle{border-color:var(--border2);color:var(--text3);}
 .sync-syncing{border-color:rgba(59,130,246,.3);color:var(--accent);animation:blink 1s steps(1) infinite;}
 .sync-synced{border-color:rgba(70,167,88,.3);color:var(--green);}
-@keyframes ceo-pulse{0%{stroke-dasharray:300;stroke-dashoffset:300;}100%{stroke-dashoffset:0;}}
 .sync-error{border-color:rgba(229,72,77,.3);color:var(--red);}
 /* BOOT */
 #boot-login-btns{display:none;flex-direction:column;align-items:center;gap:12px;margin-top:24px;}
@@ -273,7 +272,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
 <div class="topbar">
   <div class="topbar-title">MANAGER ASSIST</div>
   <div id="sync-indicator" class="sync-indicator sync-idle"><span class="sync-icon">&#9670;</span><span class="sync-label">OFFLINE</span></div>
-  <div class="topbar-actions">
+  <div class="topbar-actions" id="topbar-actions">
     <button class="px-btn sm" onclick="openModal('event')">+EVT</button>
     <button class="px-btn sm" onclick="addNewProject()">+PROJ</button>
   </div>
@@ -1443,13 +1442,8 @@ window.renderCEO=async function(){
             <div><div style="font-size:14px;font-weight:700;color:var(--text1);">${displayName}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${prof.role||prof.email||''}</div></div>
             <div style="text-align:right;"><div style="font-size:26px;font-weight:800;color:${scoreCol};line-height:1;">${score}%</div><div style="font-size:9px;color:${scoreCol};text-transform:uppercase;">${score>=75?'STABLE':score>=45?'WARNING':'CRITICAL'}</div></div>
           </div>
-          <div style="height:28px;margin-bottom:10px;overflow:hidden;border-radius:6px;background:var(--bg1);position:relative;">
-            <svg width="100%" height="28" viewBox="0 0 300 28" preserveAspectRatio="none" style="position:absolute;inset:0;">
-              <polyline points="0,14 20,14 30,14 40,3 50,25 60,14 70,14 80,14 90,14 100,14 110,14 120,4 125,24 130,14 140,14 150,14 160,14 170,14 180,4 185,24 190,14 200,14 210,14 220,14 230,14 240,4 245,24 250,14 260,14 270,14 280,14 300,14"
-                fill="none" stroke="${pulseCols[0]}" stroke-width="1.5" opacity="0.8"/>
-              <polyline points="0,14 20,14 30,14 40,3 50,25 60,14 70,14 80,14 90,14 100,14 110,14 120,4 125,24 130,14 140,14 150,14 160,14 170,14 180,4 185,24 190,14 200,14 210,14 220,14 230,14 240,4 245,24 250,14 260,14 270,14 280,14 300,14"
-                fill="none" stroke="${pulseCols[0]}" stroke-width="2" opacity="0.4" style="animation:ceo-pulse 2s linear infinite;"/>
-            </svg>
+          <div style="height:50px;margin-bottom:10px;overflow:hidden;border-radius:6px;background:#0a0b0d;">
+            <canvas class="ceo-ecg-canvas" data-score="${score}" style="width:100%;height:50px;display:block;"></canvas>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
             <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">ACTIVE</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${active.length}</div></div>
@@ -1464,13 +1458,43 @@ window.renderCEO=async function(){
         </div>`;
       }).join('');
     }
+  setTimeout(startCeoECGs,50);
   }catch(err){
     console.error('[FBSync] CEO load error:',err);
     el.innerHTML='<div style="color:var(--red);font-size:13px;">Error loading. Check Firebase permissions.</div>';
   }
 };
 
-auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;const isCEO=ceoEmail&&user.email===ceoEmail;if(isCEO){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';document.querySelectorAll('.nav-tab:not(#nav-ceo)').forEach(t=>t.style.display='none');}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();applyFbData(fbData);}else{if(!isCEO)await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();if(isCEO){nav('ceo',document.getElementById('nav-ceo'));}});
+const _ceoEcgAnims=[];
+function startCeoECGs(){
+  _ceoEcgAnims.forEach(id=>cancelAnimationFrame(id));_ceoEcgAnims.length=0;
+  document.querySelectorAll('.ceo-ecg-canvas').forEach(canvas=>{
+    const score=parseInt(canvas.dataset.score)||0;
+    const dpr=window.devicePixelRatio||1,rect=canvas.getBoundingClientRect();
+    canvas.width=rect.width*dpr;canvas.height=50*dpr;
+    const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+    const W=rect.width,H=50;
+    let color,speed,amplitude,frequency;
+    if(score>=75){color='#34d399';speed=2;amplitude=12;frequency=0.08;}
+    else if(score>=45){color='#fbbf24';speed=3;amplitude=14;frequency=0.12;}
+    else if(score>=20){color='#f87171';speed=4.5;amplitude=12;frequency=0.18;}
+    else{color='#475569';speed=0;amplitude=0;frequency=0;}
+    function ecgWave(x,t,amp,freq){const phase=x*freq+t;const base=Math.sin(phase);const qrs=Math.exp(-Math.pow((phase%(2*Math.PI)-Math.PI)*3,2))*amp*1.5;const p=Math.sin(phase*0.5)*amp*0.25;return base*amp*0.1+qrs+p;}
+    function flatlineWave(x,t){const blipPos=(t*20)%W;const dist=Math.abs(x-blipPos);if(dist<8)return Math.exp(-dist*0.8)*6*(dist<4?1:-1);return 0;}
+    let t=0;
+    function frame(){
+      ctx.clearRect(0,0,W,H);
+      ctx.strokeStyle='rgba(59,130,246,0.08)';ctx.lineWidth=1;
+      for(let y=0;y<H;y+=H/2){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.shadowBlur=score<20?0:6;ctx.shadowColor=color;ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+      const cy=H*0.6;for(let x=0;x<W;x++){const raw=score<20?flatlineWave(x,t):ecgWave(x,t,amplitude,frequency);const y=Math.max(3,Math.min(H-3,cy-raw));if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
+      if(score>=20){const dotX=(t*speed*60)%W;const dotY=Math.max(3,Math.min(H-3,cy-ecgWave(dotX,t,amplitude,frequency)));ctx.beginPath();ctx.arc(dotX,dotY,2.5,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowBlur=10;ctx.shadowColor=color;ctx.fill();ctx.shadowBlur=0;}
+      t+=0.016;_ceoEcgAnims.push(requestAnimationFrame(frame));
+    }frame();
+  });
+}
+
+auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;const isCEO=ceoEmail&&user.email===ceoEmail;if(isCEO){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';document.querySelectorAll('.nav-tab:not(#nav-ceo)').forEach(t=>t.style.display='none');const ta=document.getElementById('topbar-actions');if(ta)ta.style.display='none';}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();applyFbData(fbData);}else{if(!isCEO)await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();if(isCEO){nav('ceo',document.getElementById('nav-ceo'));}});
 
 window.forceUploadToFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');await doSave();setSyncStatus('synced');showToast('DATA UPLOADED TO CLOUD');}catch(e){setSyncStatus('error');alert('Upload error: '+e.message);}};
 window.forceDownloadFromFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');const snap=await db.ref('departments/'+currentUser.uid+'/data').get();if(!snap.exists()){alert('No data in cloud');setSyncStatus('idle');return;}applyFbData(snap.val());setSyncStatus('synced');showToast('DATA LOADED FROM CLOUD');}catch(e){setSyncStatus('error');alert('Download error: '+e.message);}};
