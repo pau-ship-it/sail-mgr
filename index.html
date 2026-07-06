@@ -1421,15 +1421,16 @@ window.renderCEO=async function(){
         const projs=data.projects||[];
         const cfgEntry=Object.values(configured).find(d=>d.email.toLowerCase()===(prof.email||'').toLowerCase());
         const displayName=cfgEntry?cfgEntry.name:(prof.name||'Unknown');
-        const active=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');
-        const critical=active.filter(p=>p.status==='critico').length;
+        const mActive=projs.length;
+        const mInProg=projs.filter(p=>p.status==='produccion').length;
+        const mUrgent=projs.filter(p=>p.status==='critico').length;
+        const mOnHold=projs.filter(p=>p.status==='gestion'||p.status==='listo').length;
         const score=calcHealthScore(projs);
         const scoreCol=score>=75?'var(--green)':score>=45?'var(--amber)':'var(--red)';
-        const pulseCols=score>=75?['#46a758','#2d7a40']:score>=45?['#f59e0b','#b45309']:['#f8717a','#c03a42'];
         const lastSeen=prof.lastSeen?new Date(prof.lastSeen).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
-        // Next deliveries — sorted by deadline, within next 60 days
         const now=new Date();
-        const nextDeliveries=active.filter(p=>p.deadline).map(p=>({...p,dDays:Math.ceil((new Date(p.deadline)-now)/86400000)})).filter(p=>p.dDays>=0).sort((a,b)=>a.dDays-b.dDays).slice(0,3);
+        const activeProjs=projs.filter(p=>p.status!=='aplazado'&&p.status!=='finalizado');
+        const nextDeliveries=activeProjs.filter(p=>p.deadline).map(p=>({...p,dDays:Math.ceil((new Date(p.deadline)-now)/86400000)})).filter(p=>p.dDays>=0).sort((a,b)=>a.dDays-b.dDays).slice(0,3);
         const deliveriesHtml=nextDeliveries.length?nextDeliveries.map(p=>{
           const col=p.dDays<=3?'var(--red)':p.dDays<=14?'var(--amber)':'var(--text3)';
           return`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">
@@ -1437,24 +1438,25 @@ window.renderCEO=async function(){
             <div style="font-size:11px;font-weight:700;color:${col};flex-shrink:0;">${p.dDays}D</div>
           </div>`;
         }).join(''):'<div style="font-size:11px;color:var(--text3);padding:4px 0;">No upcoming deadlines</div>';
+        const pad2=n=>String(n).padStart(2,'0');
         return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div><div style="font-size:14px;font-weight:700;color:var(--text1);">${displayName}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${prof.role||prof.email||''}</div></div>
-            <div style="text-align:right;"><div style="font-size:26px;font-weight:800;color:${scoreCol};line-height:1;">${score}%</div><div style="font-size:9px;color:${scoreCol};text-transform:uppercase;">${score>=75?'STABLE':score>=45?'WARNING':'CRITICAL'}</div></div>
+            <div style="font-size:10px;color:var(--text3);">Last sync: ${lastSeen}</div>
           </div>
           <div style="height:50px;margin-bottom:10px;overflow:hidden;border-radius:6px;background:#0a0b0d;">
             <canvas class="ceo-ecg-canvas" data-score="${score}" style="width:100%;height:50px;display:block;"></canvas>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
-            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">ACTIVE</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${active.length}</div></div>
-            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">URGENT</div><div style="font-size:18px;font-weight:700;color:${critical>0?'var(--red)':'var(--text1)'};">${critical}</div></div>
-            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">HEALTH</div><div style="font-size:18px;font-weight:700;color:${scoreCol};">${score}%</div></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;">
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:3px;">ACTIVE</div><div style="font-size:18px;font-weight:700;color:var(--text1);">${pad2(mActive)}</div></div>
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--accent);margin-bottom:3px;">IN PROG</div><div style="font-size:18px;font-weight:700;color:var(--accent);">${pad2(mInProg)}</div></div>
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--red);margin-bottom:3px;">URGENT</div><div style="font-size:18px;font-weight:700;color:${mUrgent>0?'var(--red)':'var(--text1)'};">${pad2(mUrgent)}</div></div>
+            <div style="background:var(--bg1);border-radius:8px;padding:8px;text-align:center;"><div style="font-size:9px;color:var(--amber);margin-bottom:3px;">ON HOLD</div><div style="font-size:18px;font-weight:700;color:var(--amber);">${pad2(mOnHold)}</div></div>
           </div>
-          <div style="margin-bottom:8px;">
+          <div style="margin-bottom:4px;">
             <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;">NEXT DELIVERIES</div>
             ${deliveriesHtml}
           </div>
-          <div style="font-size:10px;color:var(--text3);margin-top:6px;">Last sync: ${lastSeen}</div>
         </div>`;
       }).join('');
     }
