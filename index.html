@@ -355,7 +355,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
       <button class="px-btn sm" onclick="changeMonth(-1)">&#9668;</button>
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="font-size:16px;font-weight:700;color:var(--text1);" id="cal-title"></div>
-        <button class="px-btn sm" onclick="goToday()" style="font-size:10px;padding:3px 9px;letter-spacing:.5px;">HOY</button>
+        <button class="px-btn sm" onclick="goToday()" style="font-size:10px;padding:3px 9px;letter-spacing:.5px;">TODAY</button>
       </div>
       <button class="px-btn sm" onclick="changeMonth(1)">&#9658;</button>
     </div>
@@ -442,27 +442,27 @@ select option{background:var(--bg1);}textarea{resize:none;}
 
 <div class="bottom-nav">
   <button class="nav-tab active" onclick="nav('daily',this)">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="4" height="4" fill="currentColor"/><rect x="8" y="4" width="4" height="4" fill="currentColor"/><rect x="14" y="4" width="6" height="2" fill="currentColor"/><rect x="2" y="10" width="4" height="4" fill="currentColor"/><rect x="8" y="10" width="4" height="4" fill="currentColor"/><rect x="14" y="10" width="6" height="2" fill="currentColor"/><rect x="2" y="16" width="4" height="4" fill="currentColor"/><rect x="8" y="16" width="4" height="4" fill="currentColor"/><rect x="14" y="16" width="6" height="2" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     DAILY
   </button>
   <button class="nav-tab" onclick="nav('projects',this)">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="3" width="18" height="3" fill="currentColor"/><rect x="2" y="8" width="3" height="3" fill="currentColor"/><rect x="7" y="8" width="13" height="3" fill="currentColor"/><rect x="2" y="13" width="3" height="3" fill="currentColor"/><rect x="7" y="13" width="13" height="3" fill="currentColor"/><rect x="2" y="18" width="3" height="3" fill="currentColor"/><rect x="7" y="18" width="13" height="3" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
     PROJ
   </button>
   <button class="nav-tab" onclick="nav('health',this)">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="4" height="4" fill="currentColor"/><rect x="6" y="2" width="4" height="4" fill="currentColor"/><rect x="12" y="2" width="4" height="4" fill="currentColor"/><rect x="16" y="4" width="4" height="4" fill="currentColor"/><rect x="2" y="8" width="18" height="4" fill="currentColor"/><rect x="4" y="12" width="14" height="4" fill="currentColor"/><rect x="6" y="16" width="10" height="3" fill="currentColor"/><rect x="9" y="19" width="4" height="3" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 5,12 7,4 9.5,20 12,9 14.5,15 17,12 22,12"/></svg>
     HEALTH
   </button>
   <button class="nav-tab" onclick="nav('calendar',this)">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="3" fill="currentColor"/><rect x="2" y="7" width="18" height="13" fill="currentColor" opacity=".3"/><rect x="2" y="7" width="18" height="3" fill="currentColor"/><rect x="2" y="2" width="3" height="18" fill="currentColor" opacity=".5"/><rect x="17" y="2" width="3" height="18" fill="currentColor" opacity=".5"/><rect x="2" y="17" width="18" height="3" fill="currentColor" opacity=".5"/><rect x="5" y="12" width="3" height="3" fill="currentColor"/><rect x="10" y="12" width="3" height="3" fill="currentColor"/><rect x="15" y="12" width="3" height="3" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     CAL
   </button>
   <button class="nav-tab" onclick="nav('hours',this)" style="position:relative;">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="16" width="3" height="4" fill="currentColor"/><rect x="7" y="12" width="3" height="8" fill="currentColor"/><rect x="12" y="7" width="3" height="13" fill="currentColor"/><rect x="17" y="3" width="3" height="17" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
     STATS<span class="nav-dot" id="hours-dot" style="display:none;"></span>
   </button>
   <button class="nav-tab" id="nav-ceo" onclick="nav('ceo',this)" style="display:none;">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="9" y="2" width="4" height="4" fill="currentColor"/><rect x="2" y="6" width="4" height="4" fill="currentColor"/><rect x="16" y="6" width="4" height="4" fill="currentColor"/><polygon points="4,10 11,6 18,10 16,18 6,18" fill="currentColor" opacity=".3"/><rect x="4" y="10" width="14" height="2" fill="currentColor"/><rect x="5" y="14" width="12" height="2" fill="currentColor"/><rect x="3" y="18" width="16" height="2" fill="currentColor"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M3 7l4.5 4.5L12 4l4.5 7.5L21 7v11H3z"/></svg>
     CEO
   </button>
 </div>
@@ -1070,7 +1070,7 @@ function renderCalMonthList(dlMap,now){
   list.innerHTML=entries.map(({p,ds,diff})=>{
     const dayNum=parseInt(ds.split("-")[2]);
     const dCol=diff<0?"var(--red)":diff<=7?"var(--amber)":"var(--text2)";
-    const dStr=diff<0?`${Math.abs(diff)}D AGO`:diff===0?"HOY":diff===1?"MAÑANA":diff+"D";
+    const dStr=diff<0?`${Math.abs(diff)}D AGO`:diff===0?"TODAY":diff===1?"TOMORROW":diff+"D";
     const stCol=sC[p.status]||"var(--text3)";const stLbl=sL[p.status]||p.status;
     const rowCl=diff<0?"expired":diff<=7?"soon":"normal";
     const dotCl=diff<0?"cdot-red":diff<=7?"cdot-amber":"cdot-blue";
@@ -1612,7 +1612,7 @@ window.fbSync={
   triggerSave(){if(currentUser&&!window._skipFbSync)scheduleSave();},
   login(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(err=>console.error('[FBSync] login error:',err));},
   continueOffline(){hideBoot();setSyncStatus('idle');},
-  logout(){(async()=>{if(currentUser){try{await doSave();console.log('[FBSync] Data saved before logout ✓');}catch(e){console.error('[FBSync] Save before logout FAILED:',e);if(!confirm('ERROR: No se pudo guardar en la nube antes de salir.\n\nError: '+e.message+'\n\n¿Salir de todas formas? (se perderán los cambios no guardados)'))return;}}localStorage.removeItem('sm-profile');await auth.signOut();location.reload();})();},
+  logout(){(async()=>{if(currentUser){try{await doSave();console.log('[FBSync] Data saved before logout ✓');}catch(e){console.error('[FBSync] Save before logout FAILED:',e);if(!confirm('ERROR: Could not save to cloud before signing out.\n\nError: '+e.message+'\n\nSign out anyway? (unsaved changes will be lost)'))return;}}localStorage.removeItem('sm-profile');await auth.signOut();location.reload();})();},
   get isLoggedIn(){return!!currentUser;},
   get currentUser(){return currentUser;}
 };
