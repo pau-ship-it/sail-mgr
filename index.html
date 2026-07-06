@@ -1044,11 +1044,12 @@ function renderCal(){
     let wbHtml="";
     const wb=workBlocks[ds]||[];
     if(wb.length){
-      const sC={produccion:'var(--accent)',critico:'var(--red)',gestion:'var(--amber)',listo:'var(--green)'};
-      wbHtml=wb.map((id)=>{
+      const wbCols=['#ec4899','#fbbf24'];
+      wbHtml=wb.map((id,i)=>{
         const p=projects.find(x=>x.id===id);
-        const col=p?sC[p.status]||'var(--accent)':'var(--accent)';
-        return`<div style="height:3px;border-radius:2px;margin-top:2px;background:${col};opacity:.8;"></div>`;
+        const col=wbCols[i]||'#ec4899';
+        const label=p?p.name.length>9?p.name.slice(0,8)+'…':p.name:'?';
+        return`<div style="height:14px;border-radius:3px;margin-top:2px;background:${col};opacity:.9;display:flex;align-items:center;padding:0 3px;overflow:hidden;"><span style="font-size:7px;font-weight:700;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px;">${label}</span></div>`;
       }).join('');
     }
     g.innerHTML+=`<div class="cal-day${isT?" today":""}${projs.length||wb.length?" has-events":""}" onclick="calClick('${ds}')"><div class="cal-day-num">${d}</div>${dotsHtml}${wbHtml}</div>`;
@@ -1102,11 +1103,15 @@ function calClick(ds){
   }
   html+=`<div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-top:${dlProjs.length?12:0}px;margin-bottom:8px;">PRODUCTION BLOCKS <span style="color:var(--text3);font-weight:400;">(${wb.length}/2)</span></div>`;
   if(wb.length){
-    html+=wb.map(id=>{
+    const wbCols=['#ec4899','#fbbf24'];
+    html+=wb.map((id,i)=>{
       const p=projects.find(x=>x.id===id);if(!p)return"";
-      const col=sC[p.status]||"var(--accent)";
+      const col=wbCols[i]||'#ec4899';
       return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:8px;margin-bottom:6px;border-left:3px solid ${col};">
-        <div style="font-size:13px;font-weight:500;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0;"></div>
+          <div style="font-size:13px;font-weight:500;color:var(--text1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
+        </div>
         <button onclick="removeWorkBlock('${ds}','${id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 0 0 8px;flex-shrink:0;">&#x2715;</button>
       </div>`;
     }).join("");
