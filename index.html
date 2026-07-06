@@ -1046,7 +1046,7 @@ function renderCal(){
     if(wb.length){
       const wbCols=['#ec4899','#fbbf24'];
       wbHtml=wb.map((id,i)=>{
-        const p=projects.find(x=>x.id===id);
+        const p=projects.find(x=>String(x.id)===String(id));
         const col=wbCols[i]||'#ec4899';
         const label=p?p.name.length>9?p.name.slice(0,8)+'…':p.name:'?';
         return`<div style="height:14px;border-radius:3px;margin-top:2px;background:${col};opacity:.9;display:flex;align-items:center;padding:0 3px;overflow:hidden;"><span style="font-size:7px;font-weight:700;color:#000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px;">${label}</span></div>`;
@@ -1105,7 +1105,7 @@ function calClick(ds){
   if(wb.length){
     const wbCols=['#ec4899','#fbbf24'];
     html+=wb.map((id,i)=>{
-      const p=projects.find(x=>x.id===id);if(!p)return"";
+      const p=projects.find(x=>String(x.id)===String(id));if(!p)return"";
       const col=wbCols[i]||'#ec4899';
       return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:8px;margin-bottom:6px;border-left:3px solid ${col};">
         <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
