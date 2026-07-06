@@ -271,7 +271,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
 
 <div class="topbar">
   <div class="topbar-title">MANAGER ASSIST</div>
-  <div id="sync-indicator" class="sync-indicator sync-idle"><span class="sync-icon">&#9670;</span><span class="sync-label">OFFLINE</span></div>
+  <div id="sync-indicator" class="sync-indicator sync-idle" onclick="if(window.fbSync&&window.fbSync.isLoggedIn)window.forceUploadToFirebase&&window.forceUploadToFirebase()" title="Click to sync now" style="cursor:pointer;"><span class="sync-icon">&#9670;</span><span class="sync-label">OFFLINE</span></div>
   <div class="topbar-actions" id="topbar-actions">
     <button class="px-btn sm" onclick="openModal('event')">+EVT</button>
     <button class="px-btn sm" onclick="addNewProject()">+PROJ</button>
@@ -1325,7 +1325,7 @@ function applyFbData(data){if(!data)return;try{
   if(typeof window.applyData==='function'){window.applyData(data);}
   else{if(Array.isArray(data.projects))window.projects=data.projects.map(p=>({...p,history:p.history||[]}));if(Array.isArray(data.todos))window.todos=data.todos;if(Array.isArray(data.hourEntries))window.hourEntries=data.hourEntries;if(data.gdata)window.gdata=data.gdata;}
   if(data.profile){try{localStorage.setItem('sm-profile',JSON.stringify(data.profile));}catch(_){}if(typeof window.applyProfile==='function')window.applyProfile(data.profile);}
-  if(typeof window.persist==='function'){window._skipFbSync=true;window.persist();window._skipFbSync=false;}
+  if(typeof window.persist==='function'){try{window._skipFbSync=true;window.persist();}finally{window._skipFbSync=false;}}
   if(typeof window._fbRenderProjects==='function')window._fbRenderProjects();
   if(typeof window._fbRenderTodos==='function')window._fbRenderTodos();
   if(typeof window.renderDaily==='function')window.renderDaily();
@@ -1333,7 +1333,7 @@ function applyFbData(data){if(!data)return;try{
   console.log('[FBSync] Data applied ✓');
 }catch(err){console.error('[FBSync] applyFbData error:',err);}}
 
-async function doSave(){if(!currentUser)return;setSyncStatus('syncing');try{const payload=buildPayload();await db.ref('departments/'+currentUser.uid+'/data').set(payload);const prof=payload.profile||{};await db.ref('departments/'+currentUser.uid+'/profile').set({name:prof.name||'Unknown',role:prof.role||'',email:currentUser.email,lastSeen:new Date().toISOString()});setSyncStatus('synced');}catch(err){console.error('[FBSync] save error:',err);setSyncStatus('error');}}
+async function doSave(){if(!currentUser)return;setSyncStatus('syncing');try{const payload=buildPayload();await db.ref('departments/'+currentUser.uid+'/data').set(payload);const prof=payload.profile||{};await db.ref('departments/'+currentUser.uid+'/profile').set({name:prof.name||'Unknown',role:prof.role||'',email:currentUser.email,lastSeen:new Date().toISOString()});setSyncStatus('synced');console.log('[FBSync] Saved to Firebase ✓',payload.projects?.length,'projects');}catch(err){console.error('[FBSync] save error:',err);setSyncStatus('error');showToast('SYNC ERROR: '+err.message);throw err;}}
 
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(doSave,SAVE_DEBOUNCE);}
 
@@ -1494,7 +1494,7 @@ function startCeoECGs(){
   });
 }
 
-auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;const isCEO=ceoEmail&&user.email===ceoEmail;if(isCEO){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';document.querySelectorAll('.nav-tab:not(#nav-ceo)').forEach(t=>t.style.display='none');const ta=document.getElementById('topbar-actions');if(ta)ta.style.display='none';}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();applyFbData(fbData);}else{if(!isCEO)await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();if(isCEO){nav('ceo',document.getElementById('nav-ceo'));}});
+auth.onAuthStateChanged(async function(user){if(!user){currentUser=null;setSyncStatus('idle');return;}currentUser=user;setSyncStatus('syncing');const ceoEmail=(window.SAIL_CONFIG||{}).CEO_EMAIL;const isCEO=ceoEmail&&user.email===ceoEmail;if(isCEO){document.body.classList.add('ceo-mode');const tab=document.getElementById('nav-ceo');if(tab)tab.style.display='flex';document.querySelectorAll('.nav-tab:not(#nav-ceo)').forEach(t=>t.style.display='none');const ta=document.getElementById('topbar-actions');if(ta)ta.style.display='none';}try{const snap=await db.ref('departments/'+user.uid+'/data').get();if(snap.exists()){const fbData=snap.val();const fbDate=fbData.date?new Date(fbData.date).getTime():0;const localDateStr=localStorage.getItem('sm-date');const localDate=localDateStr?new Date(localDateStr).getTime():0;console.log('[FBSync] FB date:',fbData.date,'Local date:',localDateStr,'Local newer:',(localDate>fbDate));if(localDate>fbDate&&!isCEO){console.log('[FBSync] Local is newer — pushing to Firebase');await doSave();}else{applyFbData(fbData);}}else{if(!isCEO)await doSave();}setSyncStatus('synced');}catch(err){console.error('[FBSync] load error:',err);setSyncStatus('error');}hideBoot();if(isCEO){nav('ceo',document.getElementById('nav-ceo'));}});
 
 window.forceUploadToFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');await doSave();setSyncStatus('synced');showToast('DATA UPLOADED TO CLOUD');}catch(e){setSyncStatus('error');alert('Upload error: '+e.message);}};
 window.forceDownloadFromFirebase=async function(){if(!currentUser){alert('Not logged in');return;}try{setSyncStatus('syncing');const snap=await db.ref('departments/'+currentUser.uid+'/data').get();if(!snap.exists()){alert('No data in cloud');setSyncStatus('idle');return;}applyFbData(snap.val());setSyncStatus('synced');showToast('DATA LOADED FROM CLOUD');}catch(e){setSyncStatus('error');alert('Download error: '+e.message);}};
@@ -1503,7 +1503,7 @@ window.fbSync={
   triggerSave(){if(currentUser&&!window._skipFbSync)scheduleSave();},
   login(){const provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(err=>console.error('[FBSync] login error:',err));},
   continueOffline(){hideBoot();setSyncStatus('idle');},
-  logout(){(async()=>{if(currentUser){try{await doSave();}catch(_){}}localStorage.removeItem('sm-profile');await auth.signOut();location.reload();})();},
+  logout(){(async()=>{if(currentUser){try{await doSave();console.log('[FBSync] Data saved before logout ✓');}catch(e){console.error('[FBSync] Save before logout FAILED:',e);if(!confirm('ERROR: No se pudo guardar en la nube antes de salir.\n\nError: '+e.message+'\n\n¿Salir de todas formas? (se perderán los cambios no guardados)'))return;}}localStorage.removeItem('sm-profile');await auth.signOut();location.reload();})();},
   get isLoggedIn(){return!!currentUser;},
   get currentUser(){return currentUser;}
 };
