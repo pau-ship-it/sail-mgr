@@ -74,13 +74,14 @@ body.pc-mode .bottom-nav .nav-tab svg{flex-shrink:0;width:18px;height:18px;opaci
 body.pc-mode .bottom-nav .nav-tab.active{color:var(--accent);background:rgba(59,130,246,.07);border-right-color:var(--accent);}
 body.pc-mode .bottom-nav .nav-tab.active svg{opacity:1;}
 body.pc-mode .nav-dot{top:50%;right:12px;transform:translateY(-50%);}
-/* Profile at bottom of sidebar */
-body.pc-mode .streak-header{grid-column:1;position:absolute;bottom:0;left:0;width:200px;background:var(--bg1);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:none;padding:14px 16px;cursor:pointer;z-index:5;}
-body.pc-mode .streak-header>div{flex-direction:column;align-items:flex-start;gap:6px;}
-body.pc-mode .streak-header>div>div:first-child{gap:8px;}
-body.pc-mode .streak-header>div>div:last-child{font-size:9px;}
+/* Profile at bottom of sidebar — fixed so stays inside sidebar regardless */
+body.pc-mode .streak-header{position:fixed;bottom:0;left:0;width:200px;background:var(--bg1);border-top:1px solid var(--border);border-right:1px solid var(--border);padding:12px 16px;cursor:pointer;z-index:200;}
+body.pc-mode .streak-header>div{gap:8px;}
+body.pc-mode .streak-header #header-role{display:none;}
 body.pc-mode .topbar{grid-column:2;grid-row:1;padding:14px 28px;}
 body.pc-mode .content{grid-column:2;grid-row:2;padding:24px 36px 24px;overflow-y:auto;}
+/* Sidebar: leave room at bottom for profile */
+body.pc-mode .bottom-nav{padding-bottom:70px;}
 /* Metrics */
 body.pc-mode .metrics{grid-template-columns:repeat(4,1fr);}
 /* PROJ list: 2-col cards */
@@ -88,9 +89,9 @@ body.pc-mode #proj-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 body.pc-mode #proj-list .px-card{margin-bottom:0;}
 /* Calendar */
 body.pc-mode .cal-day{min-height:90px;}
-/* CEO: 2-col */
-body.pc-mode #view-ceo{display:grid;grid-template-columns:340px 1fr;column-gap:32px;align-items:start;}
-body.pc-mode #view-ceo>*{grid-column:1;}
+/* CEO: 2-col — ONLY when active, so display:none still works for inactive */
+body.pc-mode #view-ceo.active{display:grid;grid-template-columns:340px 1fr;column-gap:32px;align-items:start;}
+body.pc-mode #view-ceo.active>*{grid-column:1;}
 body.pc-mode #ceo-overview-sec{grid-column:2;grid-row:1/10;}
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg1);border-bottom:1px solid var(--border);flex-shrink:0;}
