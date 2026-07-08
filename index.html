@@ -67,8 +67,8 @@ html,body{height:100%;background:var(--bg0);font-family:var(--font-body);overflo
 body.pc-mode{overflow:hidden;}
 body.pc-mode .app{max-width:100%;width:100%;height:100vh;display:grid;grid-template-columns:220px 1fr;grid-template-rows:56px 1fr;position:relative;}
 /* Sidebar */
-body.pc-mode .bottom-nav{grid-column:1;grid-row:1/3;position:static;left:auto;transform:none;width:220px;max-width:220px;height:100vh;flex-direction:column;justify-content:flex-start;align-items:stretch;border-top:none;border-right:1px solid var(--border);padding:0 0 72px;gap:2px;background:var(--bg1);}
-body.pc-mode .bottom-nav::before{content:'MANAGER ASSIST';display:block;font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--text3);padding:18px 20px 14px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+body.pc-mode .bottom-nav{grid-column:1;grid-row:1/3;position:static;left:auto;transform:none;width:220px;max-width:220px;height:100vh;flex-direction:column;justify-content:flex-start;align-items:stretch;border-top:none;border-right:1px solid var(--border);padding:0;gap:2px;background:var(--bg1);}
+body.pc-mode .bottom-nav::before{display:none;}
 body.pc-mode .bottom-nav .nav-tab{flex:0 0 auto;flex-direction:row;justify-content:flex-start;padding:10px 20px;font-size:12px;font-weight:500;gap:12px;width:100%;text-align:left;border-radius:0;letter-spacing:.02em;border-right:2px solid transparent;transition:background .12s,color .12s;}
 body.pc-mode .bottom-nav .nav-tab svg{flex-shrink:0;width:17px;height:17px;opacity:.5;transition:opacity .12s;}
 body.pc-mode .bottom-nav .nav-tab:hover{color:var(--text1);background:rgba(255,255,255,.04);}
@@ -76,10 +76,20 @@ body.pc-mode .bottom-nav .nav-tab:hover svg{opacity:.8;}
 body.pc-mode .bottom-nav .nav-tab.active{color:var(--accent);background:rgba(59,130,246,.08);border-right-color:var(--accent);}
 body.pc-mode .bottom-nav .nav-tab.active svg{opacity:1;}
 body.pc-mode .nav-dot{top:50%;right:14px;transform:translateY(-50%);}
-/* Profile fixed at bottom of sidebar */
-body.pc-mode .streak-header{position:fixed;bottom:0;left:0;width:220px;background:var(--bg1);border-top:1px solid var(--border);border-right:1px solid var(--border);padding:11px 16px;cursor:pointer;z-index:200;}
-body.pc-mode .streak-header>div{align-items:center;gap:10px;}
-body.pc-mode .streak-header>div>div:last-child{font-size:10px;color:var(--text3);}
+/* Profile fixed at TOP of sidebar — bigger, more prominent */
+body.pc-mode .streak-header{position:fixed;top:0;left:0;width:220px;background:var(--bg1);border-bottom:1px solid var(--border);border-right:1px solid var(--border);padding:18px 18px 16px;cursor:pointer;z-index:200;}
+body.pc-mode .streak-header>div{flex-direction:column;align-items:flex-start;gap:10px;}
+body.pc-mode .streak-header #header-avatar{width:42px;height:42px;font-size:17px;}
+body.pc-mode .streak-header>div>div:first-child{gap:12px;align-items:center;}
+body.pc-mode #header-name{font-size:14px;font-weight:700;letter-spacing:-.2px;}
+body.pc-mode #header-role{font-size:11px;color:var(--text3);margin-top:1px;}
+body.pc-mode .streak-badge{font-size:12px;padding:4px 12px;}
+body.pc-mode .closed-badge{font-size:12px;padding:4px 12px;}
+body.pc-mode .streak-header>div>div:last-child{display:flex;gap:8px;padding-left:54px;}
+/* Push nav items below the profile */
+body.pc-mode .bottom-nav{padding-top:108px;}
+/* Mini widget at bottom of sidebar */
+body.pc-mode #pc-sidebar-widget{display:block!important;position:fixed;bottom:0;left:0;width:220px;background:var(--bg1);border-top:1px solid var(--border);border-right:1px solid var(--border);padding:14px 18px;z-index:199;}
 /* Topbar */
 body.pc-mode .topbar{grid-column:2;grid-row:1;padding:0 28px;height:56px;}
 body.pc-mode .topbar-title{display:none;}
@@ -493,6 +503,7 @@ select option{background:var(--bg1);}textarea{resize:none;}
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M3 7l4.5 4.5L12 4l4.5 7.5L21 7v11H3z"/></svg>
     CEO
   </button>
+  <div id="pc-sidebar-widget" style="display:none;"></div>
 </div>
 </div>
 
@@ -738,6 +749,7 @@ function persist(){
   try{const today=new Date().toISOString().split('T')[0];const bk=localStorage.getItem('sm-backup-date');if(bk!==today){localStorage.setItem('sm-backup-p',JSON.stringify(projects));localStorage.setItem('sm-backup-date',today);}}catch(_){}
   showSaved();
   if(window.fbSync&&!window._skipFbSync)window.fbSync.triggerSave();
+  if(window.updatePcWidget)window.updatePcWidget();
 }
 function showSaved(){const el=document.getElementById("save-status");el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1500);}
 function todayStr(){return new Date().toISOString().split("T")[0];}
@@ -1373,6 +1385,8 @@ function setViewMode(mode){
 // expose globals for drive-sync.js
 window.projects=projects;window.todos=todos;window.hourEntries=hourEntries;window.gdata=gdata;
 window.persist=persist;window.renderDaily=renderDaily;window.updateStreakDisplay=updateStreakDisplay;window.applyProfile=applyProfile;window._fbRenderProjects=renderProjects;window._fbRenderTodos=renderTodos;
+function updatePcWidget(){const w=document.getElementById('pc-sidebar-widget');if(!w||!document.body.classList.contains('pc-mode'))return;const urgent=(window.projects||[]).filter(p=>p.status==='critico').length;const inprog=(window.projects||[]).filter(p=>p.status==='produccion').length;const now=new Date();const dayName=now.toLocaleDateString('en-GB',{weekday:'long'});const dateStr=now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});w.innerHTML=`<div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--text3);margin-bottom:10px;">TODAY</div><div style="font-size:12px;font-weight:600;color:var(--text1);margin-bottom:2px;">${dayName}</div><div style="font-size:11px;color:var(--text3);margin-bottom:14px;">${dateStr}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:rgba(229,72,77,.08);border:1px solid rgba(229,72,77,.15);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--red);font-weight:700;letter-spacing:.06em;margin-bottom:4px;">URGENT</div><div style="font-size:22px;font-weight:700;color:var(--red);">${String(urgent).padStart(2,'0')}</div></div><div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:9px;color:var(--accent);font-weight:700;letter-spacing:.06em;margin-bottom:4px;">IN PROG</div><div style="font-size:22px;font-weight:700;color:var(--accent);">${String(inprog).padStart(2,'0')}</div></div></div>`;}
+window.updatePcWidget=updatePcWidget;
 window.applyData=function(data){
   if(Array.isArray(data.projects))projects=data.projects.map(p=>({...p,history:p.history||[]}));
   if(Array.isArray(data.todos))todos=data.todos;
@@ -1444,7 +1458,7 @@ let currentUser=null,saveTimer=null,autoSaveInterval=null;
 
 function setSyncStatus(state){const ind=document.getElementById('sync-indicator');if(!ind)return;const icon=ind.querySelector('.sync-icon'),label=ind.querySelector('.sync-label');ind.className='sync-indicator sync-'+state;const map={idle:{i:'◈',l:'OFFLINE'},syncing:{i:'⟳',l:'SYNCING…'},synced:{i:'✓',l:'SYNCED'},error:{i:'✗',l:'ERROR'}};const s=map[state]||map.idle;if(icon)icon.textContent=s.i;if(label)label.textContent=s.l;}
 
-function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';},420);}
+function hideBoot(){const boot=document.getElementById('boot-screen');if(!boot||boot.style.display==='none')return;boot.style.transition='opacity .4s';boot.style.opacity='0';setTimeout(()=>{boot.style.display='none';if(window.updatePcWidget)window.updatePcWidget();},420);}
 
 function readLocal(key,def){try{const s=localStorage.getItem(key);return s?JSON.parse(s):def;}catch(_){return def;}}
 function buildPayload(){
